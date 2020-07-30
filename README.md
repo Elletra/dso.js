@@ -4,7 +4,7 @@ A DSO decompiler for Blockland.
 
 ## Installation
 
-`npm install @electrk/dso`
+`npm install dso.js`
 
 
 ## Usage
@@ -18,7 +18,7 @@ For server-side, you can just use the native `Buffer` class.
 
 ```js
 import { Buffer }     from 'buffer/';
-import { decompiler } from '@electrk/dso';
+import { decompiler } from 'dso.js';
 
 
 // An HTML <input> element with the type "file" and an ID of "fileUpload"
@@ -62,7 +62,7 @@ document.getElementById ('fileUpload').onchange = function ( event )
 ```js
 const fs = require ('fs');
 
-const { decompiler } = require ('@electrk/dso');
+const { decompiler } = require ('dso.js');
 
 
 fs.readFile ('./myFile.cs.dso', ( error, buffer ) =>
