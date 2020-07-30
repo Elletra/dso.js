@@ -1,0 +1,32 @@
+{
+  "name": "@electrk/dso",
+  "version": "1.0.0",
+  "main": "dist/dso.js",
+  "scripts": {
+    "publish-package": "webpack && npm pack && npm link && npm publish",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Electrk/dso.js.git"
+  },
+  "author": "Electrk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Electrk/dso.js/issues"
+  },
+  "homepage": "https://github.com/Electrk/dso.js#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/plugin-transform-regenerator": "^7.10.4",
+    "regenerator-runtime": "^0.13.7",
+    "terser-webpack-plugin": "^3.0.7",
+    "webpack-cli": "^3.3.12"
+  },
+  "description": "A DSO decompiler for Blockland.",
+  "keywords": [
+    "blockland",
+    "dso",
+    "decompiler"
+  ]
+}
