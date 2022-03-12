@@ -1,4 +1,4 @@
-export enum Opcodes
+export enum Opcode
 {
 	OP_UINT_TO_FLT,             /*  0x00  */
 	OP_ADVANCE_STR_NUL,         /*  0x01  */
@@ -85,3 +85,8 @@ export enum Opcodes
 	OP_CREATE_OBJECT,           /*  0x52  */
 	OP_FUNC_DECL,               /*  0x53  */
 };
+
+export const isValidOpcode = ( op: Opcode ): boolean =>
+{
+	return Number.isInteger (op) && op >= Opcode.OP_UINT_TO_FLT && op <= Opcode.OP_FUNC_DECL;
+}

@@ -1,4 +1,4 @@
-export enum NumberTypes
+export enum NumberType
 {
 	UInt8,
 	UInt16LE,
