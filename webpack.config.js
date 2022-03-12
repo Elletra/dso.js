@@ -1,45 +1,45 @@
-const path    = require ('path');
-const webpack = require ('webpack');
+const path = require ("path");
+const webpack = require ("webpack");
 
-const TerserPlugin = require ('terser-webpack-plugin');
+const TerserPlugin = require ("terser-webpack-plugin");
 
 
 module.exports =
 {
-	entry: './main.js',
+	entry: "./main.ts",
+	mode: process.argv.mode || "development",
 
-	output:
+	resolve:
 	{
-		filename: 'dso.js',
-		path:     path.join (__dirname + '/dist'),
-
-		library:       'dso',
-		libraryTarget: 'commonjs2',
-
-		umdNamedDefine: true,
+		extensions: [".ts", ".js"],
 	},
-
-	mode: 'production',
 
 	module:
 	{
 		rules:
 		[
 			{
-				test: /\.jsx?$/,
+				test: /\.ts$/,
+				use: "ts-loader",
 				exclude: /node_modules/,
-				loader: 'babel-loader',
-				options:
-				{
-					presets: ['@babel/preset-env']
-				}
-			}
-		]
+			},
+		],
+	},
+
+	output:
+	{
+		filename: "dso.js",
+		path: path.join (__dirname + "/dist"),
+
+		library: "dso",
+		libraryTarget: "commonjs2",
+
+		umdNamedDefine: true,
 	},
 
 	optimization:
 	{
-    	minimize: true,
+		minimize: true,
 		minimizer:
 		[
 			new TerserPlugin (
@@ -47,27 +47,9 @@ module.exports =
 				terserOptions:
 				{
 					keep_classnames: true,
-					keep_fnames:     true,
+					keep_fnames: true,
 				},
 			}),
 		],
-	},
-
-	resolve:
-	{
-		alias:
-		{
-			'~/util':             path.resolve (__dirname, './common/util/'),
-			'~/common':           path.resolve (__dirname, './common/'),
-			'~/ArrayMap.js':      path.resolve (__dirname, './common/ArrayMap.js'),
-			'~/decompiler':       path.resolve (__dirname, './decompiler/'),
-			'~/DSOLoader':        path.resolve (__dirname, './decompiler/DSOLoader/'),
-			'~/DSODisassembler':  path.resolve (__dirname, './decompiler/DSODisassembler/'),
-			'~/DSOControlBlock':  path.resolve (__dirname, './decompiler/DSOControlBlock/'),
-			'~/DSOToken':         path.resolve (__dirname, './decompiler/DSODisassembler/DSOToken/'),
-			'~/DSOParser':        path.resolve (__dirname, './decompiler/DSOParser/'),
-			'~/DSONode':          path.resolve (__dirname, './decompiler/DSOParser/DSONode/'),
-			'~/DSOCodeGenerator': path.resolve (__dirname, './decompiler/DSOCodeGenerator/'),
-		}
 	},
 };
