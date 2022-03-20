@@ -15,7 +15,7 @@ import { SIZE_INT8, SIZE_INT16, SIZE_INT32, SIZE_F64 } from "../common/numbers/c
  */
 export class Loader
 {
-	static Error = class extends Error {}
+	static Error = class extends Error {};
 
 	private _buffer: IBuffer | null;
 	private _pos: number;
@@ -25,10 +25,6 @@ export class Loader
 		this._buffer = null;
 		this._pos = 0;
 	}
-
-	/**
-	 * Public methods
-	 */
 
 	parse ( buffer: IBuffer, version: number = DSO_VERSION ): DSOData
 	{

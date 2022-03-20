@@ -11,7 +11,7 @@ export type IdentTable = Map<number, number>;
  */
 export class DSOData
 {
-	static Error = class extends Error {}
+	static Error = class extends Error {};
 
 	public version: number;
 
@@ -44,34 +44,24 @@ export class DSOData
 
 	tableValue ( op: Opcode, value: number, inFunc: boolean )
 	{
-		let tableValue = null;
-
 		switch ( op )
 		{
 			case Opcode.OP_LOADIMMED_STR:
 			case Opcode.OP_TAG_TO_STR:
-				tableValue = this.stringTableValue (value, inFunc);
-				break;
+				return this.stringTableValue (value, inFunc);
 
 			case Opcode.OP_LOADIMMED_IDENT:
-				tableValue = this.stringTableValue (value, false);
-				break;
+				return this.stringTableValue (value, false);
 
 			case Opcode.OP_LOADIMMED_FLT:
-				tableValue = this.floatTableValue (value, inFunc);
-				break;
+				return this.floatTableValue (value, inFunc);
 
 			case Opcode.OP_LOADIMMED_UINT:
-				tableValue = value;
-				break;
-		}
+				return value;
 
-		if ( tableValue === null )
-		{
-			throw new DSOData.Error (`Could not find ${value} (op: ${op} | in func: ${inFunc})`);
+			default:
+				throw new DSOData.Error (`Could not find \`${value}\` (op: ${op} | in func: ${inFunc})`);
 		}
-
-		return tableValue;
 	}
 
 	stringTableValue ( index: number, inFunc: boolean = false ): string
@@ -88,9 +78,12 @@ export class DSOData
 		return table.has (index) ? table.get (index) : null;
 	}
 
-	opcodeAt ( ip: number ): number
+	/**
+	 * @returns {number} Opcode at `addr`. If `addr` is invalid, returns -1.
+	 */
+	opcodeAt ( addr: number ): number
 	{
-		return Number.isInteger (ip) && ip >= 0 && ip < this.code.length ? this.code[ip] : -1;
+		return Number.isInteger (addr) && addr >= 0 && addr < this.code.length ? this.code[addr] : -1;
 	}
 
 	get codeSize (): number
