@@ -1,7 +1,7 @@
-import { DSOData } from "./DSOData";
-import { clamp } from "../common/util/math";
+import { DSOData } from "../loader/DSOData";
+import { clamp } from "../../common/util/math";
 
-import { Opcode, isValidOpcode } from "../common/opcodes";
+import { Opcode, isValidOpcode } from "../../common/opcodes";
 
 
 export class BytecodeReader

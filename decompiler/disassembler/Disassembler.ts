@@ -1,5 +1,5 @@
-import { DSOData } from "../DSOData";
-import { BytecodeReader } from "../BytecodeReader";
+import { DSOData } from "../loader/DSOData";
+import { BytecodeReader } from "./BytecodeReader";
 import { Instruction } from "./Instruction";
 import { Disassembly } from "./Disassembly";
 import { Queue } from "../../common/util/Queue";

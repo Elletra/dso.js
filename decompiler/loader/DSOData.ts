@@ -1,4 +1,4 @@
-import { Opcode } from "../common/opcodes";
+import { Opcode } from "../../common/opcodes";
 
 
 export type StringTable = Map<number, string>;

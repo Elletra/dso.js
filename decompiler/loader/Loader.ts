@@ -1,13 +1,13 @@
-import { IBuffer } from "../common/IBuffer";
-import { NumberType } from "../common/numbers/numberTypes";
+import { IBuffer } from "../../common/IBuffer";
+import { NumberType } from "../../common/numbers/numberTypes";
 
 import { DSOData, StringTable, FloatTable, IdentTable } from "./DSOData";
 
-import { stringEncryption } from "../common/strings/encryption";
+import { stringEncryption } from "../../common/strings/encryption";
 
-import { DSO_VERSION } from "../common/constants";
+import { DSO_VERSION } from "../../common/constants";
 
-import { SIZE_INT8, SIZE_INT16, SIZE_INT32, SIZE_F64 } from "../common/numbers/constants";
+import { SIZE_INT8, SIZE_INT16, SIZE_INT32, SIZE_F64 } from "../../common/numbers/constants";
 
 
 /**
