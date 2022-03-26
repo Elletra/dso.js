@@ -116,14 +116,12 @@ export class Disassembler
 		}
 
 		this._disassembly.addInstruction (addr, instruction);
-		this._disassembleJump (instruction);
-		this._disassembleFuncDecl (instruction);
-		this._disassembleReturn (instruction);
+		this._handleInstruction (instruction);
 
 		return instruction;
 	}
 
-	private _disassembleJump ( instruction: Instruction )
+	private _handleInstruction ( instruction: Instruction )
 	{
 		switch ( instruction.op )
 		{
@@ -134,23 +132,15 @@ export class Disassembler
 			case Opcode.OP_JMPIFNOT_NP:
 			case Opcode.OP_JMPIF_NP:
 			case Opcode.OP_JMP:
-				const jumpTarget = instruction.operands[0];
+				this._handleJump (instruction);
+				break;
 
-				if ( !this._disassembly.hasInstruction (jumpTarget) )
-				{
-					// We do this just in case there's some "jump in the middle of an instruction"
-					// funny business.
-					this._enqueueAddr (jumpTarget);
-				}
+			case Opcode.OP_FUNC_DECL:
+				this._handleFuncDecl (instruction);
+				break;
 
-				this._disassembly.addJump (instruction.addr, jumpTarget);
-				this._disassembly.addCfgNodeAddrs (jumpTarget);
-
-				if ( !this._reader.isAtEnd () )
-				{
-					this._disassembly.addCfgNodeAddrs (this._reader.ip);
-				}
-
+			case Opcode.OP_RETURN:
+				this._handleReturn (instruction);
 				break;
 
 			default:
@@ -158,18 +148,37 @@ export class Disassembler
 		}
 	}
 
-	private _disassembleFuncDecl ( instruction: Instruction )
+	private _handleJump ( instruction: Instruction )
 	{
-		if ( instruction.op === Opcode.OP_FUNC_DECL && !this._reader.isAtEnd () )
+		const jumpTarget = instruction.operands[0];
+
+		if ( !this._disassembly.hasInstruction (jumpTarget) )
 		{
-			// Add function declaration and function end to CFG node address set.
+			// We do this just in case there's some "jump in the middle of an instruction" funny business.
+			this._enqueueAddr (jumpTarget);
+		}
+
+		this._disassembly.addJump (instruction.addr, jumpTarget);
+		this._disassembly.addCfgNodeAddrs (jumpTarget);
+
+		if ( !this._reader.isAtEnd () )
+		{
+			this._disassembly.addCfgNodeAddrs (this._reader.ip);
+		}
+	}
+
+	private _handleFuncDecl ( instruction: Instruction )
+	{
+		if ( !this._reader.isAtEnd () )
+		{
+			// Add function declaration and function end to CFG node addresses.
 			this._disassembly.addCfgNodeAddrs (instruction.addr, instruction.operands[4]);
 		}
 	}
 
-	private _disassembleReturn ( instruction: Instruction )
+	private _handleReturn ( instruction: Instruction )
 	{
-		if ( instruction.op === Opcode.OP_RETURN && !this._reader.isAtEnd () )
+		if ( !this._reader.isAtEnd () )
 		{
 			this._disassembly.addCfgNodeAddrs (this._reader.ip);
 		}
