@@ -117,6 +117,7 @@ export class Disassembler
 
 		this._disassembly.addInstruction (addr, instruction);
 		this._disassembleJump (instruction);
+		this._disassembleFuncDecl (instruction);
 		this._disassembleReturn (instruction);
 
 		return instruction;
@@ -154,6 +155,15 @@ export class Disassembler
 
 			default:
 				break;
+		}
+	}
+
+	private _disassembleFuncDecl ( instruction: Instruction )
+	{
+		if ( instruction.op === Opcode.OP_FUNC_DECL && !this._reader.isAtEnd () )
+		{
+			// Add function declaration and function end to CFG node address set.
+			this._disassembly.addCfgNodeAddrs (instruction.addr, instruction.operands[4]);
 		}
 	}
 
