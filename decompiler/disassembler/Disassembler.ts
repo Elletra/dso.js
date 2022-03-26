@@ -117,6 +117,7 @@ export class Disassembler
 
 		this._disassembly.addInstruction (addr, instruction);
 		this._disassembleJump (instruction);
+		this._disassembleReturn (instruction);
 
 		return instruction;
 	}
@@ -142,12 +143,25 @@ export class Disassembler
 				}
 
 				this._disassembly.addJump (instruction.addr, jumpTarget);
-				this._disassembly.addCfgNodeAddrs (this._reader.ip, jumpTarget);
+				this._disassembly.addCfgNodeAddrs (jumpTarget);
+
+				if ( !this._reader.isAtEnd () )
+				{
+					this._disassembly.addCfgNodeAddrs (this._reader.ip);
+				}
 
 				break;
 
 			default:
 				break;
+		}
+	}
+
+	private _disassembleReturn ( instruction: Instruction )
+	{
+		if ( instruction.op === Opcode.OP_RETURN && !this._reader.isAtEnd () )
+		{
+			this._disassembly.addCfgNodeAddrs (this._reader.ip);
 		}
 	}
 
