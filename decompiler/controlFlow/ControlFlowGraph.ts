@@ -1,12 +1,13 @@
 import { Instruction } from "../disassembler/Instruction";
 
 
-export class Node
+export class CfgNode
 {
 	public addr: number;
 	public instructions: Instruction[];
-	public children: Node[];
-	public parents: Node[];
+	public children: CfgNode[];
+	public parents: CfgNode[];
+	public order: number;
 
 	constructor ( addr: number, ...instructions: Instruction[] )
 	{
@@ -14,6 +15,7 @@ export class Node
 		this.instructions = instructions;
 		this.children = [];
 		this.parents = [];
+		this.order = -1;
 	}
 
 	addInstruction ( instruction: Instruction )
@@ -28,9 +30,9 @@ export class Node
 		return instructions.length > 0 ? instructions[instructions.length - 1] : null;
 	}
 
-	addChild ( child: Node )
+	addChild ( child: CfgNode )
 	{
-		if ( child instanceof Node && !this.children.includes (child) )
+		if ( child instanceof CfgNode && !this.children.includes (child) )
 		{
 			this.children.push (child);
 
@@ -44,10 +46,32 @@ export class Node
 
 export class ControlFlowGraph
 {
-	public entryPoint: Node
+	public entryPoint: CfgNode
+	private _nodes: Map<number, CfgNode>;
 
-	constructor ( entryPoint: Node )
+	constructor ( entryPoint: CfgNode, nodes: Map<number, CfgNode> )
 	{
 		this.entryPoint = entryPoint;
+		this._nodes = nodes;
+	}
+
+	nodeAt ( addr: number ): CfgNode
+	{
+		return this.hasNodeAt (addr) ? this._nodes.get (addr) : null;
+	}
+
+	hasNodeAt ( addr: number )
+	{
+		return this._nodes.has (addr);
+	}
+
+	get size (): number
+	{
+		return this._nodes.size;
+	}
+
+	[Symbol.iterator] ()
+	{
+		return this._nodes.entries ();
 	}
 };

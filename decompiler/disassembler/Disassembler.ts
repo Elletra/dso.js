@@ -8,7 +8,7 @@ import { Opcode, isValidOpcode } from "../../common/opcodes";
 
 
 /**
- * Disassembles DSO bytecode into instructions and jump data.
+ * Disassembles DSO bytecode into instructions and data for creating a control flow graph.
  */
 export class Disassembler
 {
