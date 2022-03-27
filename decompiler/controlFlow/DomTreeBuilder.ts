@@ -9,6 +9,8 @@ import { ControlFlowGraph, CfgNode } from "./ControlFlowGraph";
  */
 export class DomTreeBuilder
 {
+	static Error = class extends Error {};
+
 	private _nodes: CfgNode[];
 	private _domTree: DominatorTree;
 	private _order: number;
@@ -34,7 +36,7 @@ export class DomTreeBuilder
 	}
 
 	/**
-	 * Build an array of nodes indexed by their `.order` field.
+	 * Builds an array of nodes indexed by their `.order` field.
 	 */
 	private _buildNodeArray ( graph: ControlFlowGraph )
 	{
@@ -80,6 +82,13 @@ export class DomTreeBuilder
 						predecessors.delete (pred);
 						break;
 					}
+				}
+
+				if ( newIDom === null )
+				{
+					throw new DomTreeBuilder.Error (
+						`Could not find predecessor of node ${node.order} with a calculated dominator`
+					);
 				}
 
 				for ( const pred of predecessors )
