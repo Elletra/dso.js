@@ -5,6 +5,7 @@
 		"sourceMap": true,
 		"target": "es5",
 		"esModuleInterop": true,
-		"noImplicitAny": false
+		"noImplicitAny": false,
+		"downlevelIteration": true
 	}
 }

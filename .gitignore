@@ -73,3 +73,6 @@ typings/
 
 # Distribution files
 dist/
+
+# Ignore
+gitignore/
