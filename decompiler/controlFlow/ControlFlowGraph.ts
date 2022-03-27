@@ -46,12 +46,12 @@ export class CfgNode
 
 export class ControlFlowGraph
 {
-	public entryPoint: CfgNode
+	public root: CfgNode
 	private _nodes: Map<number, CfgNode>;
 
-	constructor ( entryPoint: CfgNode, nodes: Map<number, CfgNode> )
+	constructor ( root: CfgNode, nodes: Map<number, CfgNode> )
 	{
-		this.entryPoint = entryPoint;
+		this.root = root;
 		this._nodes = nodes;
 	}
 

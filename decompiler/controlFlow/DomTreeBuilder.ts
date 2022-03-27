@@ -19,7 +19,7 @@ export class DomTreeBuilder
 	{
 		this._init (graph);
 		this._buildNodeArray (graph);
-		this._buildDomTree (graph);
+		this._buildDomTree ();
 
 		return this._domTree;
 	}
@@ -31,7 +31,7 @@ export class DomTreeBuilder
 	private _init ( graph: ControlFlowGraph )
 	{
 		this._nodes = new Array (graph.size);
-		this._domTree = new DominatorTree ();
+		this._domTree = new DominatorTree (graph);
 		this._order = 0;
 	}
 
@@ -51,15 +51,9 @@ export class DomTreeBuilder
 	 *
 	 * https://www.cs.rice.edu/~keith/EMBED/dom.pdf
 	 */
-	private _buildDomTree ( graph: ControlFlowGraph )
+	private _buildDomTree ()
 	{
 		let changed = true;
-
-		// Initialize dominator tree.
-		this._nodes.forEach (node => this._domTree.setDominator (node, null));
-
-		// Entry point dominates itself.
-		this._domTree.setDominator (graph.entryPoint, graph.entryPoint);
 
 		while ( changed )
 		{

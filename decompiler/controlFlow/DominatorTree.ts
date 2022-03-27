@@ -7,10 +7,11 @@ import { ControlFlowGraph, CfgNode } from "./ControlFlowGraph";
 export class DominatorTree
 {
 	private _doms: Map<CfgNode, CfgNode>;
+	public root: CfgNode;
 
-	constructor ()
+	constructor ( graph: ControlFlowGraph )
 	{
-		this._doms = new Map ();
+		this._init (graph);
 	}
 
 	getDominator ( node: CfgNode ): CfgNode
@@ -26,5 +27,23 @@ export class DominatorTree
 	[Symbol.iterator] ()
 	{
 		return this._doms.entries ();
+	}
+
+	/**
+	 * Private methods
+	 */
+
+	private _init ( graph: ControlFlowGraph )
+	{
+		this.root = graph.root;
+		this._doms = new Map ();
+
+		for ( const [, node] of graph )
+		{
+			this.setDominator (node, null);
+		}
+
+		// Entry point always dominates itself.
+		this.setDominator (graph.root, graph.root);
 	}
 };

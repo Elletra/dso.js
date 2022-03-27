@@ -27,7 +27,7 @@ export class CfgBuilder
 
 		const graph = new ControlFlowGraph (this._getNode (entryPoint.addr), this._nodes);
 
-		this._calcNodeOrder (graph.entryPoint, new Set ());
+		this._calcNodeOrder (graph.root, new Set ());
 
 		return graph;
 	}
