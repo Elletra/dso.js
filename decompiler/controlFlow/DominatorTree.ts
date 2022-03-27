@@ -6,8 +6,8 @@ import { ControlFlowGraph, CfgNode } from "./ControlFlowGraph";
  */
 export class DominatorTree
 {
-	private _doms: Map<CfgNode, CfgNode>;
 	public root: CfgNode;
+	private _doms: Map<CfgNode, CfgNode>;
 
 	constructor ( graph: ControlFlowGraph )
 	{
@@ -16,12 +16,43 @@ export class DominatorTree
 
 	getDominator ( node: CfgNode ): CfgNode
 	{
-		return this._doms.get (node)
+		return this._doms.has (node) ? this._doms.get (node) : null;
 	}
 
 	setDominator ( node: CfgNode, dominator: CfgNode )
 	{
 		this._doms.set (node, dominator);
+	}
+
+	dominates ( node: CfgNode, checkDom: CfgNode ): boolean
+	{
+		if ( !(node instanceof CfgNode) || !(checkDom instanceof CfgNode) )
+		{
+			return false;
+		}
+
+		const { root } = this;
+
+		// The root dominates all.
+		if ( checkDom === root )
+		{
+			return true;
+		}
+
+		// Nothing can dominate the root except the root itself.
+		if ( node === root )
+		{
+			return false;
+		}
+
+		let dom = this.getDominator (node);
+
+		while ( dom !== checkDom && dom !== root && dom !== null )
+		{
+			dom = this.getDominator (dom);
+		}
+
+		return dom === checkDom;
 	}
 
 	[Symbol.iterator] ()
