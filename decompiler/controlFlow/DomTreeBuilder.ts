@@ -53,7 +53,6 @@ export class DomTreeBuilder
 	 */
 	private _buildDomTree ( graph: ControlFlowGraph )
 	{
-		let newIDom: CfgNode;
 		let changed = true;
 
 		// Initialize dominator tree.
@@ -72,6 +71,8 @@ export class DomTreeBuilder
 			{
 				const node = this._nodes[i];
 				const predecessors = new Set (node.parents);
+
+				let newIDom: CfgNode = null;
 
 				// Find first predecessor whose dominator has been calculated.
 				for ( const pred of predecessors )

@@ -1,4 +1,4 @@
-import { DSOData } from "../loader/DSOData";
+import { DsoData } from "../loader/DsoData";
 import { clamp } from "../../common/util/math";
 
 import { Opcode, isValidOpcode } from "../../common/opcodes";
@@ -6,10 +6,10 @@ import { Opcode, isValidOpcode } from "../../common/opcodes";
 
 export class BytecodeReader
 {
-	private _data: DSOData;
+	private _data: DsoData;
 	private _ip: number;
 
-	constructor ( data: DSOData )
+	constructor ( data: DsoData )
 	{
 		this._data = data;
 		this._ip = 0;

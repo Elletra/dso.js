@@ -1,4 +1,4 @@
-import { DSOData } from "../loader/DSOData";
+import { DsoData } from "../loader/DsoData";
 import { BytecodeReader } from "./BytecodeReader";
 import { Instruction } from "./Instruction";
 import { Disassembly } from "./Disassembly";
@@ -25,7 +25,7 @@ export class Disassembler
 		this._disassembly = null;
 	}
 
-	disassemble ( data: DSOData ): Disassembly
+	disassemble ( data: DsoData ): Disassembly
 	{
 		this._reader = new BytecodeReader (data);
 		this._queue = new Queue<number> ();

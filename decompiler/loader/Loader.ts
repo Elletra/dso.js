@@ -1,7 +1,7 @@
 import { IBuffer } from "../../common/IBuffer";
 import { NumberType } from "../../common/numbers/numberTypes";
 
-import { DSOData, StringTable, FloatTable, IdentTable } from "./DSOData";
+import { DsoData, StringTable, FloatTable, IdentTable } from "./DsoData";
 
 import { stringEncryption } from "../../common/strings/encryption";
 
@@ -11,7 +11,7 @@ import { SIZE_INT8, SIZE_INT16, SIZE_INT32, SIZE_F64 } from "../../common/number
 
 
 /**
- * Parses DSO file sections and produces a `DSOData` instance.
+ * Parses DSO file sections and produces a `DsoData` instance.
  */
 export class Loader
 {
@@ -26,7 +26,7 @@ export class Loader
 		this._pos = 0;
 	}
 
-	parse ( buffer: IBuffer, version: number = DSO_VERSION ): DSOData
+	parse ( buffer: IBuffer, version: number = DSO_VERSION ): DsoData
 	{
 		if ( arguments.length < 1 )
 		{
@@ -36,7 +36,7 @@ export class Loader
 		this._buffer = buffer;
 		this._pos = 0;
 
-		const data = new DSOData (version);
+		const data = new DsoData (version);
 
 		this._parseHeader (data);
 		this._parseStringTable (data.globalStringTable);
@@ -162,7 +162,7 @@ export class Loader
 		return str;
 	}
 
-	private _parseHeader ( data: DSOData )
+	private _parseHeader ( data: DsoData )
 	{
 		const fileVersion = this._readInteger (true);
 
@@ -222,7 +222,7 @@ export class Loader
 		}
 	}
 
-	private _parseCode ( data: DSOData )
+	private _parseCode ( data: DsoData )
 	{
 		data.code = [];
 
@@ -237,7 +237,7 @@ export class Loader
 		this._parseLineBreaks (data, codeSize, numLineBreaks);
 	}
 
-	private _parseLineBreaks ( data: DSOData, codeSize: number, numLineBreaks: number )
+	private _parseLineBreaks ( data: DsoData, codeSize: number, numLineBreaks: number )
 	{
 		data.lineBreakPairs = [];
 
@@ -249,7 +249,7 @@ export class Loader
 		}
 	}
 
-	private _parseIdentTable ( data: DSOData )
+	private _parseIdentTable ( data: DsoData )
 	{
 		let index, count, ip;
 		let numIdent = this._readInteger (true);
