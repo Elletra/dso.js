@@ -74,11 +74,12 @@ export class DominatorTree
 	/**
 	 * Finds loops based on back edges, which are defined as control blocks jumping to dominators.
 	 *
-	 * @returns {number[][]} An array of tuples, indicating the start and end blocks of loops.
+	 * @returns {Map<number>, number>} A map of control block addresses, indicating the start and
+	 *                                 end blocks of loops.
 	 */
-	findLoops (): number[][]
+	findLoops (): Map<number, number>
 	{
-		const loopAddrs = [];
+		const loopAddrs = new Map ();
 		const graph = this._graph;
 
 		for ( const [addr, node] of graph )
@@ -91,7 +92,7 @@ export class DominatorTree
 
 				if ( this.dominates (graph.nodeAt (jumpTarget), node) )
 				{
-					loopAddrs.push ([jumpTarget, addr]);
+					loopAddrs.set (jumpTarget, addr);
 				}
 			}
 		}
