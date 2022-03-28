@@ -74,7 +74,7 @@ export class DominatorTree
 	/**
 	 * Finds loops based on back edges, which are defined as control blocks jumping to dominators.
 	 *
-	 * @returns {number[][]} An array of tuples, indicating the start block and end block.
+	 * @returns {number[][]} An array of tuples, indicating the start and end blocks of loops.
 	 */
 	findLoops (): number[][]
 	{

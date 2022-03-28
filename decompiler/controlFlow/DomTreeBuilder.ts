@@ -40,9 +40,11 @@ export class DomTreeBuilder
 	 */
 	private _buildNodeArray ( graph: ControlFlowGraph )
 	{
+		const nodes = this._nodes;
+
 		for ( const [, node] of graph )
 		{
-			this._nodes[node.order] = node;
+			nodes[node.order] = node;
 		}
 	}
 
@@ -53,17 +55,19 @@ export class DomTreeBuilder
 	 */
 	private _buildDomTree ()
 	{
+		const domTree = this._domTree;
+		const nodes = this._nodes;
+		const numNodes = nodes.length;
+
 		let changed = true;
 
 		while ( changed )
 		{
 			changed = false;
 
-			const numNodes = this._nodes.length;
-
 			for ( let i = numNodes - 2; i >= 0; i-- )
 			{
-				const node = this._nodes[i];
+				const node = nodes[i];
 				const predecessors = new Set (node.parents);
 
 				let newIDom: CfgNode = null;
@@ -71,7 +75,7 @@ export class DomTreeBuilder
 				// Find first predecessor whose dominator has been calculated.
 				for ( const pred of predecessors )
 				{
-					if ( this._domTree.getDominator (pred) !== null )
+					if ( domTree.getDominator (pred) !== null )
 					{
 						newIDom = pred;
 						predecessors.delete (pred);
@@ -88,15 +92,15 @@ export class DomTreeBuilder
 
 				for ( const pred of predecessors )
 				{
-					if ( this._domTree.getDominator (pred) !== null )
+					if ( domTree.getDominator (pred) !== null )
 					{
 						newIDom = this._intersectDoms (pred, newIDom);
 					}
 				}
 
-				if ( this._domTree.getDominator (node) !== newIDom )
+				if ( domTree.getDominator (node) !== newIDom )
 				{
-					this._domTree.setDominator (node, newIDom);
+					domTree.setDominator (node, newIDom);
 					changed = true;
 				}
 			}
@@ -115,16 +119,18 @@ export class DomTreeBuilder
 		let finger1 = node1;
 		let finger2 = node2;
 
+		const domTree = this._domTree;
+
 		while ( finger1 !== finger2 )
 		{
 			while ( finger1.order < finger2.order )
 			{
-				finger1 = this._domTree.getDominator (finger1);
+				finger1 = domTree.getDominator (finger1);
 			}
 
 			while ( finger2.order < finger1.order )
 			{
-				finger2 = this._domTree.getDominator (finger2);
+				finger2 = domTree.getDominator (finger2);
 			}
 		}
 

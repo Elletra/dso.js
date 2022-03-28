@@ -18,18 +18,9 @@ export class Disassembler
 	private _queue: Queue<number>;
 	private _disassembly: Disassembly;
 
-	constructor ()
-	{
-		this._reader = null;
-		this._queue = null;
-		this._disassembly = null;
-	}
-
 	disassemble ( data: DsoData ): Disassembly
 	{
-		this._reader = new BytecodeReader (data);
-		this._queue = new Queue<number> ();
-		this._disassembly = new Disassembly ();
+		this._init (data);
 
 		this._enqueueAddr (0);
 
@@ -51,6 +42,13 @@ export class Disassembler
 	/**
 	 * Private methods
 	 */
+
+	private _init ( data: DsoData )
+	{
+		this._reader = new BytecodeReader (data);
+		this._queue = new Queue<number> ();
+		this._disassembly = new Disassembly ();
+	}
 
 	private _advance (): number
 	{
@@ -146,19 +144,20 @@ export class Disassembler
 	private _handleJump ( instruction: Instruction )
 	{
 		const jumpTarget = instruction.operands[0];
+		const disassembly = this._disassembly;
 
-		if ( !this._disassembly.hasInstruction (jumpTarget) )
+		if ( !disassembly.hasInstruction (jumpTarget) )
 		{
 			// We do this just in case there's some "jump in the middle of an instruction" funny business.
 			this._enqueueAddr (jumpTarget);
 		}
 
-		this._disassembly.addJump (instruction.addr, jumpTarget);
-		this._disassembly.addCfgNodeAddrs (jumpTarget);
+		disassembly.addJump (instruction.addr, jumpTarget);
+		disassembly.addCfgNodeAddrs (jumpTarget);
 
 		if ( !this._reader.isAtEnd () )
 		{
-			this._disassembly.addCfgNodeAddrs (this._reader.ip);
+			disassembly.addCfgNodeAddrs (this._reader.ip);
 		}
 	}
 
