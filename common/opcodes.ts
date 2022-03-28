@@ -90,3 +90,21 @@ export const isValidOpcode = ( op: Opcode ): boolean =>
 {
 	return Number.isInteger (op) && op >= Opcode.OP_UINT_TO_FLT && op <= Opcode.OP_FUNC_DECL;
 }
+
+export const isJumpOpcode = ( op: Opcode ): boolean =>
+{
+	switch ( op )
+	{
+		case Opcode.OP_JMPIFFNOT:
+		case Opcode.OP_JMPIFNOT:
+		case Opcode.OP_JMPIFF:
+		case Opcode.OP_JMPIF:
+		case Opcode.OP_JMPIFNOT_NP:
+		case Opcode.OP_JMPIF_NP:
+		case Opcode.OP_JMP:
+			return true;
+
+		default:
+			return false;
+	}
+};
