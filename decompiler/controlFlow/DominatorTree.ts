@@ -1,4 +1,5 @@
 import { ControlFlowGraph, CfgNode } from "./ControlFlowGraph";
+import { isJumpOpcode } from "../../common/opcodes";
 
 
 /**
@@ -6,7 +7,7 @@ import { ControlFlowGraph, CfgNode } from "./ControlFlowGraph";
  */
 export class DominatorTree
 {
-	public root: CfgNode;
+	private _graph: ControlFlowGraph;
 	private _doms: Map<CfgNode, CfgNode>;
 
 	constructor ( graph: ControlFlowGraph )
@@ -14,21 +15,36 @@ export class DominatorTree
 		this._init (graph);
 	}
 
+	/**
+	 * Returns the immediate dominator of `node`.
+	 */
 	getDominator ( node: CfgNode ): CfgNode
 	{
 		return this._doms.has (node) ? this._doms.get (node) : null;
 	}
 
+	/**
+	 * Sets the immediate dominator of `node`.
+	 */
 	setDominator ( node: CfgNode, dominator: CfgNode )
 	{
 		this._doms.set (node, dominator);
 	}
 
-	dominates ( node: CfgNode, checkDom: CfgNode ): boolean
+	/**
+	 * Checks if `checkDom` dominates `node`. If `strict` is true, it checks for strict domination.
+	 */
+	dominates ( checkDom: CfgNode, node: CfgNode, strict: boolean = false ): boolean
 	{
 		if ( !(node instanceof CfgNode) || !(checkDom instanceof CfgNode) )
 		{
 			return false;
+		}
+
+		// All nodes dominate themselves, unless we're checking for strict domination.
+		if ( node === checkDom && !strict )
+		{
+			return true;
 		}
 
 		const { root } = this;
@@ -55,6 +71,39 @@ export class DominatorTree
 		return dom === checkDom;
 	}
 
+	/**
+	 * Finds loops based on back edges, which are defined as control blocks jumping to dominators.
+	 *
+	 * @returns {number[][]} An array of tuples, indicating the start block and end block.
+	 */
+	findLoops (): number[][]
+	{
+		const loopAddrs = [];
+		const graph = this._graph;
+
+		for ( const [addr, node] of graph )
+		{
+			const last = node.lastInstruction ();
+
+			if ( isJumpOpcode (last.op) )
+			{
+				const jumpTarget = last.operands[0];
+
+				if ( this.dominates (graph.nodeAt (jumpTarget), node) )
+				{
+					loopAddrs.push ([jumpTarget, addr]);
+				}
+			}
+		}
+
+		return loopAddrs;
+	}
+
+	get root (): CfgNode
+	{
+		return this._graph.root;
+	}
+
 	[Symbol.iterator] ()
 	{
 		return this._doms.entries ();
@@ -66,7 +115,7 @@ export class DominatorTree
 
 	private _init ( graph: ControlFlowGraph )
 	{
-		this.root = graph.root;
+		this._graph = graph;
 		this._doms = new Map ();
 
 		for ( const [, node] of graph )
