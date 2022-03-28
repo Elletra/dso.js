@@ -4,7 +4,7 @@ import { Instruction } from "./Instruction";
 import { Disassembly } from "./Disassembly";
 import { Queue } from "../../common/util/Queue";
 
-import { Opcode, isValidOpcode } from "../../common/opcodes";
+import { Opcode, isValidOpcode, isJumpOpcode } from "../../common/opcodes";
 
 
 /**
@@ -125,16 +125,6 @@ export class Disassembler
 	{
 		switch ( instruction.op )
 		{
-			case Opcode.OP_JMPIFFNOT:
-			case Opcode.OP_JMPIFNOT:
-			case Opcode.OP_JMPIFF:
-			case Opcode.OP_JMPIF:
-			case Opcode.OP_JMPIFNOT_NP:
-			case Opcode.OP_JMPIF_NP:
-			case Opcode.OP_JMP:
-				this._handleJump (instruction);
-				break;
-
 			case Opcode.OP_FUNC_DECL:
 				this._handleFuncDecl (instruction);
 				break;
@@ -144,6 +134,11 @@ export class Disassembler
 				break;
 
 			default:
+				if ( isJumpOpcode (instruction.op) )
+				{
+					this._handleJump (instruction);
+				}
+
 				break;
 		}
 	}
