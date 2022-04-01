@@ -81,7 +81,7 @@ export class Disassembler
 				// Connect our previous instruction to the rest of the code, if necessary.
 				if ( prevInsn !== null )
 				{
-					prevInsn.addChild (this._disassembly.instructionAt (ip));
+					this._disassembly.addEdge (prevInsn.addr, ip);
 				}
 
 				break;
@@ -91,7 +91,7 @@ export class Disassembler
 
 			if ( prevInsn !== null )
 			{
-				prevInsn.addChild (instruction);
+				this._disassembly.addEdge (prevInsn.addr, instruction.addr);
 			}
 
 			prevInsn = instruction;
@@ -193,19 +193,18 @@ export class Disassembler
 
 	private _fixJump ( jumpAddr: number, targetAddr: number )
 	{
-		const jump = this._disassembly.instructionAt (jumpAddr);
-		const target = this._disassembly.instructionAt (targetAddr);
+		const disassembly = this._disassembly;
 
-		if ( jump === null )
+		if ( !disassembly.hasInstruction (jumpAddr) )
 		{
-			throw new Disassembler.Error (`Could not get instruction at ${jumpAddr}`);
+			throw new Disassembler.Error (`No instruction found at ${jumpAddr}`);
 		}
 
-		if ( target === null )
+		if ( !disassembly.hasInstruction (targetAddr) )
 		{
-			throw new Disassembler.Error (`Could not get instruction at ${targetAddr}`);
+			throw new Disassembler.Error (`No instruction found at ${targetAddr}`);
 		}
 
-		jump.addChild (target);
+		this._disassembly.addEdge (jumpAddr, targetAddr);
 	}
 };
