@@ -1,21 +1,18 @@
 import { Instruction } from "../disassembler/Instruction";
+import { Digraph } from "../../common/util/Digraph";
 
 
 export class CfgNode
 {
 	public addr: number;
 	public instructions: Instruction[];
-	public children: CfgNode[];
-	public parents: CfgNode[];
-	public order: number;
+	public postorder: number;
 
 	constructor ( addr: number, ...instructions: Instruction[] )
 	{
 		this.addr = addr;
 		this.instructions = instructions;
-		this.children = [];
-		this.parents = [];
-		this.order = -1;
+		this.postorder = -1;
 	}
 
 	addInstruction ( instruction: Instruction )
@@ -30,48 +27,30 @@ export class CfgNode
 		return instructions.length > 0 ? instructions[instructions.length - 1] : null;
 	}
 
-	addChild ( child: CfgNode )
+	*[Symbol.iterator] ()
 	{
-		if ( child instanceof CfgNode && !this.children.includes (child) )
-		{
-			this.children.push (child);
+		const { instructions } = this;
+		const { length } = instructions;
 
-			if ( !child.parents.includes (this) )
-			{
-				child.parents.push (this);
-			}
+		for ( let i = 0; i < length; i++ )
+		{
+			yield instructions[i] as Instruction;
 		}
 	}
 };
 
-export class ControlFlowGraph
+export class ControlFlowGraph extends Digraph<number, CfgNode>
 {
-	public root: CfgNode
-	private _nodes: Map<number, CfgNode>;
+	public root: number;
 
-	constructor ( root: CfgNode, nodes: Map<number, CfgNode> )
+	constructor ( root: number )
 	{
+		super ();
 		this.root = root;
-		this._nodes = nodes;
 	}
 
-	nodeAt ( addr: number ): CfgNode
+	rootNode (): CfgNode
 	{
-		return this.hasNodeAt (addr) ? this._nodes.get (addr) : null;
-	}
-
-	hasNodeAt ( addr: number )
-	{
-		return this._nodes.has (addr);
-	}
-
-	get size (): number
-	{
-		return this._nodes.size;
-	}
-
-	[Symbol.iterator] ()
-	{
-		return this._nodes.entries ();
+		return this.node (this.root);
 	}
 };

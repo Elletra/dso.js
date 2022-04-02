@@ -11,14 +11,14 @@ export class DomTreeBuilder
 {
 	static Error = class extends Error {};
 
+	private _graph: ControlFlowGraph;
 	private _nodes: CfgNode[];
 	private _domTree: DominatorTree;
-	private _order: number;
 
 	build ( graph: ControlFlowGraph ): DominatorTree
 	{
 		this._init (graph);
-		this._buildNodeArray (graph);
+		this._buildNodeArray ();
 		this._buildDomTree ();
 
 		return this._domTree;
@@ -30,19 +30,22 @@ export class DomTreeBuilder
 
 	private _init ( graph: ControlFlowGraph )
 	{
+		this._graph = graph;
 		this._nodes = new Array (graph.size);
 		this._domTree = new DominatorTree (graph);
-		this._order = 0;
 	}
 
 	/**
-	 * Builds an array of nodes indexed by their `.order` field.
+	 * Builds an array of nodes indexed by their `.postorder` field.
 	 */
-	private _buildNodeArray ( graph: ControlFlowGraph )
+	private _buildNodeArray ()
 	{
-		for ( const [, node] of graph )
+		const graph = this._graph;
+		const nodes = this._nodes;
+
+		for ( const node of graph )
 		{
-			this._nodes[node.order] = node;
+			nodes[node.postorder] = node;
 		}
 	}
 
@@ -53,28 +56,34 @@ export class DomTreeBuilder
 	 */
 	private _buildDomTree ()
 	{
+		const domTree = this._domTree;
+		const graph = this._graph;
+		const nodes = this._nodes;
+		const numNodes = nodes.length;
+
 		let changed = true;
 
 		while ( changed )
 		{
 			changed = false;
 
-			const numNodes = this._nodes.length;
-
+			// Iterate over the nodes (except the root) in reverse postorder.
 			for ( let i = numNodes - 2; i >= 0; i-- )
 			{
-				const node = this._nodes[i];
-				const predecessors = new Set (node.parents);
+				const node = nodes[i];
+				const predecessors = new Set (graph.edgesTo (node.addr));
 
 				let newIDom: CfgNode = null;
 
 				// Find first predecessor whose dominator has been calculated.
-				for ( const pred of predecessors )
+				for ( const predKey of predecessors )
 				{
-					if ( this._domTree.getDominator (pred) !== null )
+					const pred = graph.node (predKey);
+
+					if ( domTree.getDominator (pred) !== null )
 					{
 						newIDom = pred;
-						predecessors.delete (pred);
+						predecessors.delete (predKey);
 						break;
 					}
 				}
@@ -82,21 +91,23 @@ export class DomTreeBuilder
 				if ( newIDom === null )
 				{
 					throw new DomTreeBuilder.Error (
-						`Could not find predecessor of node ${node.order} with a calculated dominator`
+						`Could not find predecessor of node ${node.postorder} with a calculated dominator`
 					);
 				}
 
-				for ( const pred of predecessors )
+				for ( const predKey of predecessors )
 				{
-					if ( this._domTree.getDominator (pred) !== null )
+					const pred = graph.node (predKey);
+
+					if ( domTree.getDominator (pred) !== null )
 					{
 						newIDom = this._intersectDoms (pred, newIDom);
 					}
 				}
 
-				if ( this._domTree.getDominator (node) !== newIDom )
+				if ( domTree.getDominator (node) !== newIDom )
 				{
-					this._domTree.setDominator (node, newIDom);
+					domTree.setDominator (node, newIDom);
 					changed = true;
 				}
 			}
@@ -115,16 +126,18 @@ export class DomTreeBuilder
 		let finger1 = node1;
 		let finger2 = node2;
 
+		const domTree = this._domTree;
+
 		while ( finger1 !== finger2 )
 		{
-			while ( finger1.order < finger2.order )
+			while ( finger1.postorder < finger2.postorder )
 			{
-				finger1 = this._domTree.getDominator (finger1);
+				finger1 = domTree.getDominator (finger1);
 			}
 
-			while ( finger2.order < finger1.order )
+			while ( finger2.postorder < finger1.postorder )
 			{
-				finger2 = this._domTree.getDominator (finger2);
+				finger2 = domTree.getDominator (finger2);
 			}
 		}
 

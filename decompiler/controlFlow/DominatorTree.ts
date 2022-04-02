@@ -74,14 +74,15 @@ export class DominatorTree
 	/**
 	 * Finds loops based on back edges, which are defined as control blocks jumping to dominators.
 	 *
-	 * @returns {number[][]} An array of tuples, indicating the start block and end block.
+	 * @returns {Map<number>, number>} A map of control block addresses, indicating the start and
+	 *                                 end blocks of loops.
 	 */
-	findLoops (): number[][]
+	findLoops (): Map<number, number>
 	{
-		const loopAddrs = [];
+		const loopAddrs = new Map ();
 		const graph = this._graph;
 
-		for ( const [addr, node] of graph )
+		for ( const node of graph )
 		{
 			const last = node.lastInstruction ();
 
@@ -89,9 +90,9 @@ export class DominatorTree
 			{
 				const jumpTarget = last.operands[0];
 
-				if ( this.dominates (graph.nodeAt (jumpTarget), node) )
+				if ( this.dominates (graph.node (jumpTarget), node) )
 				{
-					loopAddrs.push ([jumpTarget, addr]);
+					loopAddrs.set (jumpTarget, node.addr);
 				}
 			}
 		}
@@ -101,7 +102,7 @@ export class DominatorTree
 
 	get root (): CfgNode
 	{
-		return this._graph.root;
+		return this._graph.rootNode ();
 	}
 
 	[Symbol.iterator] ()
@@ -118,12 +119,12 @@ export class DominatorTree
 		this._graph = graph;
 		this._doms = new Map ();
 
-		for ( const [, node] of graph )
+		for ( const node of graph )
 		{
 			this.setDominator (node, null);
 		}
 
 		// Entry point always dominates itself.
-		this.setDominator (graph.root, graph.root);
+		this.setDominator (graph.rootNode (), graph.rootNode ());
 	}
 };

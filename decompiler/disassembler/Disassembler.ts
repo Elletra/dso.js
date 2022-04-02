@@ -18,18 +18,9 @@ export class Disassembler
 	private _queue: Queue<number>;
 	private _disassembly: Disassembly;
 
-	constructor ()
-	{
-		this._reader = null;
-		this._queue = null;
-		this._disassembly = null;
-	}
-
 	disassemble ( data: DsoData ): Disassembly
 	{
-		this._reader = new BytecodeReader (data);
-		this._queue = new Queue<number> ();
-		this._disassembly = new Disassembly ();
+		this._init (data);
 
 		this._enqueueAddr (0);
 
@@ -51,6 +42,13 @@ export class Disassembler
 	/**
 	 * Private methods
 	 */
+
+	private _init ( data: DsoData )
+	{
+		this._reader = new BytecodeReader (data);
+		this._queue = new Queue<number> ();
+		this._disassembly = new Disassembly ();
+	}
 
 	private _advance (): number
 	{
@@ -83,7 +81,7 @@ export class Disassembler
 				// Connect our previous instruction to the rest of the code, if necessary.
 				if ( prevInsn !== null )
 				{
-					prevInsn.addChild (this._disassembly.instructionAt (ip));
+					this._disassembly.addEdge (prevInsn.addr, ip);
 				}
 
 				break;
@@ -93,7 +91,7 @@ export class Disassembler
 
 			if ( prevInsn !== null )
 			{
-				prevInsn.addChild (instruction);
+				this._disassembly.addEdge (prevInsn.addr, instruction.addr);
 			}
 
 			prevInsn = instruction;
@@ -146,19 +144,20 @@ export class Disassembler
 	private _handleJump ( instruction: Instruction )
 	{
 		const jumpTarget = instruction.operands[0];
+		const disassembly = this._disassembly;
 
-		if ( !this._disassembly.hasInstruction (jumpTarget) )
+		if ( !disassembly.hasInstruction (jumpTarget) )
 		{
 			// We do this just in case there's some "jump in the middle of an instruction" funny business.
 			this._enqueueAddr (jumpTarget);
 		}
 
-		this._disassembly.addJump (instruction.addr, jumpTarget);
-		this._disassembly.addCfgNodeAddrs (jumpTarget);
+		disassembly.addJump (instruction.addr, jumpTarget);
+		disassembly.addCfgNodeAddrs (jumpTarget);
 
 		if ( !this._reader.isAtEnd () )
 		{
-			this._disassembly.addCfgNodeAddrs (this._reader.ip);
+			disassembly.addCfgNodeAddrs (this._reader.ip);
 		}
 	}
 
@@ -194,19 +193,18 @@ export class Disassembler
 
 	private _fixJump ( jumpAddr: number, targetAddr: number )
 	{
-		const jump = this._disassembly.instructionAt (jumpAddr);
-		const target = this._disassembly.instructionAt (targetAddr);
+		const disassembly = this._disassembly;
 
-		if ( jump === null )
+		if ( !disassembly.hasInstruction (jumpAddr) )
 		{
-			throw new Disassembler.Error (`Could not get instruction at ${jumpAddr}`);
+			throw new Disassembler.Error (`No instruction found at ${jumpAddr}`);
 		}
 
-		if ( target === null )
+		if ( !disassembly.hasInstruction (targetAddr) )
 		{
-			throw new Disassembler.Error (`Could not get instruction at ${targetAddr}`);
+			throw new Disassembler.Error (`No instruction found at ${targetAddr}`);
 		}
 
-		jump.addChild (target);
+		this._disassembly.addEdge (jumpAddr, targetAddr);
 	}
 };

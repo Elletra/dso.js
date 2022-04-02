@@ -11,25 +11,16 @@ import { ControlFlowGraph, CfgNode } from "./ControlFlowGraph";
 export class CfgBuilder
 {
 	private _disassembly: Disassembly;
-	private _nodes: Map<number, CfgNode>;
-	private _visited: Set<Instruction>;
-	private _connections: Map<number, Set<number>>;
-	private _order: number;
+	private _graph: ControlFlowGraph;
 
 	build ( disassembly: Disassembly ): ControlFlowGraph
 	{
 		this._init (disassembly);
+		this._buildGraph ();
+		this._connectJumps ();
+		this._calcPostorder ();
 
-		const entryPoint = disassembly.entryPoint ();
-
-		this._buildNode (entryPoint);
-		this._connectNodes ();
-
-		const graph = new ControlFlowGraph (this._getNode (entryPoint.addr), this._nodes);
-
-		this._calcNodeOrder (graph.root, new Set ());
-
-		return graph;
+		return this._graph;
 	}
 
 	/**
@@ -39,136 +30,81 @@ export class CfgBuilder
 	private _init ( disassembly: Disassembly )
 	{
 		this._disassembly = disassembly;
-		this._nodes = new Map ();
-		this._visited = new Set ();
-		this._connections = new Map ();
-		this._order = 0;
+		this._graph = new ControlFlowGraph (disassembly.entryPoint ().addr);
 	}
 
-	private _createNode ( addr: number, ...instructions: Instruction[] ): CfgNode
+	private _buildGraph ()
 	{
-		const node = new CfgNode (addr, ...instructions);
+		let node = this._buildNode (this._disassembly.entryPoint ());
 
-		this._nodes.set (addr, node);
-
-		return node;
-	}
-
-	private _getNode ( addr: number ): CfgNode
-	{
-		return this._nodes.has (addr) ? this._nodes.get (addr) : null;
-	}
-
-	private _addConnection ( fromAddr: number, toAddr: number )
-	{
-		if ( !this._connections.has (fromAddr) )
+		for ( const instruction of this._disassembly.dfs () )
 		{
-			this._connections.set (fromAddr, new Set ());
+			node = this._handleInstruction (instruction, node);
 		}
-
-		this._connections.get (fromAddr).add (toAddr);
-	}
-
-	private _visitInstruction ( instruction: Instruction, queue: Queue<Instruction>, node: CfgNode )
-	{
-		if ( this._disassembly.hasCfgNodeAddr (instruction.addr) )
-		{
-			this._addConnection (node.addr, instruction.addr);
-			this._buildNode (instruction);
-		}
-		else
-		{
-			node.addInstruction (instruction);
-			this._visitChildren (instruction, queue, node);
-		}
-	}
-
-	private _visitChildren ( instruction: Instruction, queue: Queue<Instruction>, node: CfgNode )
-	{
-		if ( instruction.numChildren > 1 && !this._disassembly.hasJump (instruction.addr) )
-		{
-			throw new Error (`Non-jump instruction at ${instruction.addr} with multiple children`);
-		}
-
-		const visited = this._visited;
-		const { cfgNodeAddrs } = this._disassembly;
-
-		instruction.children.forEach (child =>
-		{
-			if ( !visited.has (child) )
-			{
-				visited.add (child);
-				queue.enqueue (child);
-			}
-			else if ( cfgNodeAddrs.has (child.addr) )
-			{
-				this._addConnection (node.addr, child.addr);
-			}
-		});
 	}
 
 	private _buildNode ( instruction: Instruction ): CfgNode
 	{
-		if ( this._nodes.has (instruction.addr) )
+		let node;
+
+		if ( this._graph.hasKey (instruction.addr) )
 		{
-			return this._nodes.get (instruction.addr);
+			node = this._graph.node (instruction.addr);
 		}
-
-		const node = this._createNode (instruction.addr, instruction);
-		const queue = new Queue<Instruction> ();
-
-		this._visitChildren (instruction, queue, node);
-
-		while ( !queue.isEmpty () )
+		else
 		{
-			this._visitInstruction (queue.dequeue (), queue, node);
+			node = new CfgNode (instruction.addr, instruction);
+			this._graph.addVertex (node.addr, node);
 		}
 
 		return node;
 	}
 
-	private _connectNodes ()
+	private _handleInstruction ( instruction: Instruction, node: CfgNode ): CfgNode
 	{
-		const connections = this._connections;
+		let newNode = node;
 
-		for ( const [fromAddr, toAddrs] of connections )
+		if ( this._disassembly.hasCfgNodeAddr (instruction.addr) )
 		{
-			for ( const toAddr of toAddrs )
-			{
-				this._connect (fromAddr, toAddr);
-			}
+			newNode = this._buildNode (instruction);
+			this._graph.addEdge (node.addr, newNode.addr);
+		}
+		else
+		{
+			node.addInstruction (instruction);
+		}
+
+		return newNode;
+	}
+
+	private _connectJumps ()
+	{
+		for ( const node of this._graph )
+		{
+			this._connectJump (node);
 		}
 	}
 
-	private _connect ( fromAddr: number, toAddr: number )
+	private _connectJump ( node: CfgNode )
 	{
-		this._getNode (fromAddr).addChild (this._getNode (toAddr));
+		const last = node.lastInstruction ();
+
+		if ( this._disassembly.hasJump (last.addr) )
+		{
+			this._graph.addEdge (node.addr, last.operands[0]);
+		}
 	}
 
 	/**
-	 * Traverse graph in postorder and set each node's `.order` field.
-	 *
-	 * TODO: It would be good to figure out how to do this iteratively to prevent call stack related
-	 *       crashes on larger files. It works fine on Blockland's largest script files, but there
-	 *       might be larger ones out there that will crash.
+	 * Calculates the postorder of the graph, which we need to make the dominator tree.
 	 */
-	private _calcNodeOrder ( node: CfgNode, visited: Set<CfgNode> )
+	private _calcPostorder ()
 	{
-		visited.add (node);
+		let postorder = this._graph.size - 1;
 
-		const { children } = node;
-		const { length } = children;
-
-		for ( let i = 0; i < length; i++ )
+		for ( const [, node] of this._graph.dfs (this._graph.root) )
 		{
-			const child = children[i];
-
-			if ( !visited.has (child) )
-			{
-				this._calcNodeOrder (child, visited);
-			}
+			node.postorder = postorder--;
 		}
-
-		node.order = this._order++;
 	}
 };
