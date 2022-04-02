@@ -100,18 +100,21 @@ export class Digraph<K, V>
 		{
 			const key = stack.pop ();
 			const node = this.node (key);
+			const edgesFrom = this.edgesFrom (key);
 
-			// The edges must be reversed so they're iterated over in the proper order.
-			const edgesFrom = this.edgesFrom (key).reverse ();
+			const { length } = edgesFrom;
 
-			edgesFrom.forEach (edgeKey =>
+			// The nodes must be iterated over in reverse so they're visited in the proper order.
+			for ( let i = length - 1; i >= 0; i-- )
 			{
-				if ( !visited.has (edgeKey) )
+				const nodeKey = edgesFrom[i];
+
+				if ( !visited.has (nodeKey) )
 				{
-					stack.push (edgeKey);
-					visited.add (edgeKey);
+					stack.push (nodeKey);
+					visited.add (nodeKey);
 				}
-			});
+			}
 
 			yield [key, node] as [K, V];
 		}
