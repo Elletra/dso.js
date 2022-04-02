@@ -67,6 +67,7 @@ export class DomTreeBuilder
 		{
 			changed = false;
 
+			// Iterate over the nodes (except the root) in reverse postorder.
 			for ( let i = numNodes - 2; i >= 0; i-- )
 			{
 				const node = nodes[i];
