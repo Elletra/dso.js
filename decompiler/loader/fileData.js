@@ -12,11 +12,11 @@ export class StringTable
 
 		for (let i = 0; i < length; i++)
 		{
-			const ch = rawString[i];
+			const ch = rawString.at(i);
 
 			if (ch === '\0')
 			{
-				this._table[index] = str;
+				this._table.set(index, str);
 				str = "";
 				index = i + 1;
 			}
@@ -27,7 +27,7 @@ export class StringTable
 		}
 	}
 
-	get(index) { this.has(index) ? this._table[index] : null; }
+	get(index) { return this.has(index) ? this._table.get(index) : null; }
 	has(index) { return this._table.has(index); }
 }
 
