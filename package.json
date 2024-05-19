@@ -11,7 +11,7 @@
     "url": "git+https://github.com/Elletra/dso.js.git"
   },
   "author": "Elletra",
-  "license": "ISC",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/Elletra/dso.js/issues"
   },
