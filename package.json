@@ -2,6 +2,7 @@
   "name": "dso.js",
   "version": "2.0.0",
   "main": "dist/dso.js",
+  "type": "module",
   "scripts": {
     "publish-package": "webpack && npm pack && npm link && npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
