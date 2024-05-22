@@ -1,14 +1,16 @@
-import { FileData } from "./fileData.js";
-import { FileReader } from "./fileReader.js";
+import { FileData } from "./fileData";
+import { FileReader } from "./fileReader";
 
 export class FileLoader
 {
+	protected _reader: FileReader;
+
 	constructor()
 	{
 		this._reader = null;
 	}
 
-	loadFile(buffer, version)
+	loadFile(buffer: any, version: number): FileData
 	{
 		this._reader = new FileReader(buffer);
 
@@ -19,13 +21,16 @@ export class FileLoader
 		this._readFloatTable(data, true);
 		this._readStringTable(data, false);
 		this._readFloatTable(data, false);
-		this._readCode(data);
+
+		const [codeSize, lineBreaks] = this._readCode(data);
+
+		this._readLineBreaks(data, codeSize, lineBreaks);
 		this._readIdentifierTable(data);
 
 		return data;
 	}
 
-	_readHeader(data)
+	_readHeader(data: FileData): void
 	{
 		const version = this._reader.readU32();
 
@@ -35,14 +40,14 @@ export class FileLoader
 		}
 	}
 
-	_readStringTable(data, global)
+	_readStringTable(data: FileData, global: boolean): void
 	{
 		const table = this._reader.readString(this._reader.readU32());
 
 		data.createStringTable(this._unencryptStrings(table), global);
 	}
 
-	_readFloatTable(data, global)
+	_readFloatTable(data: FileData, global: boolean): void
 	{
 		const size = this._reader.readU32();
 
@@ -52,30 +57,30 @@ export class FileLoader
 		}
 	}
 
-	_readCode(data)
+	_readCode(data: FileData): [number, number]
 	{
-		const size = this._reader.readU32();
+		const codeSize = this._reader.readU32();
 		const lineBreaks = this._reader.readU32();
 
-		for (let i = 0; i < size; i++)
+		for (let i = 0; i < codeSize; i++)
 		{
 			data.setOp(i, this._reader.readOp());
 		}
 
-		this._readLineBreaks(data, size, lineBreaks);
+		return [codeSize, lineBreaks];
 	}
 
-	_readLineBreaks(data, codeSize, pairs)
+	_readLineBreaks(data: FileData, codeSize: number, count: number): void
 	{
-		const totalSize = codeSize + pairs * 2;
+		const totalSize = codeSize + count;
 
 		for (let i = codeSize; i < totalSize; i++)
 		{
-			data.addLineBreakPair(this._reader.readU32());
+			data.addLineBreakPair(this._reader.readU32(), this._reader.readU32());
 		}
 	}
 
-	_readIdentifierTable(data)
+	_readIdentifierTable(data: FileData): void
 	{
 		let identifiers = this._reader.readU32();
 
@@ -94,7 +99,7 @@ export class FileLoader
 		}
 	}
 
-	_unencryptStrings(str)
+	_unencryptStrings(str: string): string
 	{
 		const key = "cl3buotro";
 		let unencrypted = "";
