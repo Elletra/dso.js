@@ -2,21 +2,21 @@ import { Opcode, ReturnValue, TypeReq } from "./opcode";
 
 export class OpcodeFactory
 {
-	protected _opcodes: string[];
+	#opcodes: string[];
 
 	constructor(opcodes: string[])
 	{
-		this._opcodes = [...opcodes];
+		this.#opcodes = [...opcodes];
 	}
 
 	create(value: number): Opcode
 	{
-		const str = (value !== null && value < this._opcodes.length) ? this._opcodes[value] : null;
+		const str = (value !== null && value < this.#opcodes.length) ? this.#opcodes[value] : null;
 
-		return new Opcode(str !== null ? value : null, str, this._getReturnValue(str), this._getTypeReq(str));
+		return new Opcode(str !== null ? value : null, str, this.#getReturnValue(str), this.#getTypeReq(str));
 	}
 
-	_getReturnValue(opcodeStr: string): ReturnValue
+	#getReturnValue(opcodeStr: string): ReturnValue
 	{
 		switch (opcodeStr)
 		{
@@ -55,7 +55,7 @@ export class OpcodeFactory
 		}
 	}
 
-	_getTypeReq(opcodeStr: string): TypeReq
+	#getTypeReq(opcodeStr: string): TypeReq
 	{
 		switch (opcodeStr)
 		{

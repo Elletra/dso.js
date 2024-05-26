@@ -21,9 +21,9 @@ export class FileReader
 		this.#position = 0;
 	}
 
-	get isEOF(): boolean { return this.#position >= this.#buffer.byteLength; }
+	public get isEOF(): boolean { return this.#position >= this.#buffer.byteLength; }
 
-	readU8(): number
+	public readU8(): number
 	{
 		const value = this.#buffer.readUInt8(this.#position);
 
@@ -32,7 +32,7 @@ export class FileReader
 		return value;
 	}
 
-	readU32(): number
+	public readU32(): number
 	{
 		const value = this.#buffer.readUInt32LE(this.#position);
 
@@ -41,7 +41,7 @@ export class FileReader
 		return value;
 	}
 
-	readF64(): number
+	public readF64(): number
 	{
 		const value = this.#buffer.readDoubleLE(this.#position);
 
@@ -50,14 +50,14 @@ export class FileReader
 		return value;
 	}
 
-	readOp(): number
+	public readOp(): number
 	{
 		const op = this.readU8();
 
 		return op == 0xFF ? this.readU32() : op;
 	}
 
-	readString(length: number): string
+	public readString(length: number): string
 	{
 		let str = "";
 

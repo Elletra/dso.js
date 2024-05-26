@@ -37,11 +37,11 @@ export class Opcode
 		this.#typeReq = typeReq;
 	}
 
-	get value(): number { return this.#value ?? 0; }
-	get stringValue(): string { return this.#stringValue; }
-	get returnValue(): ReturnValue { return this.#returnValue; }
-	get typeReq(): TypeReq { return this.#typeReq; }
+	public get value(): number { return this.#value ?? 0; }
+	public get stringValue(): string { return this.#stringValue; }
+	public get returnValue(): ReturnValue { return this.#returnValue; }
+	public get typeReq(): TypeReq { return this.#typeReq; }
 
-	get hasValue(): boolean { return this.#value !== null; }
-	get isValid(): boolean { return this.hasValue && this.#stringValue !== null; }
+	public get hasValue(): boolean { return this.#value !== null; }
+	public get isValid(): boolean { return this.hasValue && this.#stringValue !== null; }
 };

@@ -1,12 +1,12 @@
 export class StringTable
 {
-	protected _table: Map<number, string>;
-	protected _rawString: string;
+	#table: Map<number, string>;
+	#rawString: string;
 
 	constructor(rawString: string)
 	{
-		this._table = new Map();
-		this._rawString = rawString;
+		this.#table = new Map();
+		this.#rawString = rawString;
 
 		let index = 0;
 		let str = "";
@@ -19,7 +19,7 @@ export class StringTable
 
 			if (ch === '\0')
 			{
-				this._table.set(index, str);
+				this.#table.set(index, str);
 				str = "";
 				index = i + 1;
 			}
@@ -30,77 +30,79 @@ export class StringTable
 		}
 	}
 
-	get(index: number): string | null { return this.has(index) ? this._table.get(index) : null; }
-	has(index: number): boolean { return this._table.has(index); }
+	public get rawString(): string { return this.#rawString; }
+
+	public get(index: number): string | null { return this.has(index) ? this.#table.get(index) : null; }
+	public has(index: number): boolean { return this.#table.has(index); }
 }
 
 export class FileData
 {
-	protected _version: number;
-	protected _code: number[];
-	protected _globalStrings: StringTable;
-	protected _functionStrings: StringTable;
-	protected _globalFloats: number[];
-	protected _functionFloats: number[];
-	protected _identifierTable: Map<number, number>;
-	protected _lineBreakPairs: [number, number][];
+	#version: number;
+	#code: number[];
+	#globalStrings: StringTable;
+	#functionStrings: StringTable;
+	#globalFloats: number[];
+	#functionFloats: number[];
+	#identifierTable: Map<number, number>;
+	#lineBreakPairs: [number, number][];
 
 	constructor(version: number)
 	{
-		this._version = version;
-		this._code = [];
-		this._globalStrings = null;
-		this._functionStrings = null;
-		this._globalFloats = [];
-		this._functionFloats = [];
-		this._identifierTable = new Map();
-		this._lineBreakPairs = [];
+		this.#version = version;
+		this.#code = [];
+		this.#globalStrings = null;
+		this.#functionStrings = null;
+		this.#globalFloats = [];
+		this.#functionFloats = [];
+		this.#identifierTable = new Map();
+		this.#lineBreakPairs = [];
 	}
 
-	get version(): number { return this._version; }
-	get codeSize(): number { return this._code.length; }
+	public get version(): number { return this.#version; }
+	public get codeSize(): number { return this.#code.length; }
 
-	setIdentifier(addr: number, index: number): void { this._identifierTable.set(addr, index); }
+	public setIdentifier(addr: number, index: number): void { this.#identifierTable.set(addr, index); }
 
-	getIdentifier(addr: number, index: number): string | null
+	public getIdentifier(addr: number, index: number): string | null
 	{
 		return this.hasIdentifierAt(addr) ? this.getString(index, true) : null;
 	}
 
-	hasIdentifierAt(addr: number): boolean
+	public hasIdentifierAt(addr: number): boolean
 	{
-		return this._identifierTable.has(addr);
+		return this.#identifierTable.has(addr);
 	}
 
-	getString(index: number, global: boolean): string | null
+	public getString(index: number, global: boolean): string | null
 	{
-		return (global ? this._globalStrings : this._functionStrings).get(index);
+		return (global ? this.#globalStrings : this.#functionStrings).get(index);
 	}
 
-	setFloat(index: number, value: number, global: boolean): void
+	public setFloat(index: number, value: number, global: boolean): void
 	{
-		(global ? this._globalFloats : this._functionFloats)[index] = value;
+		(global ? this.#globalFloats : this.#functionFloats)[index] = value;
 	}
 
-	getFloat(index: number, global: boolean): number | null
+	public getFloat(index: number, global: boolean): number | null
 	{
-		return (global ? this._globalFloats : this._functionFloats)[index] ?? null;
+		return (global ? this.#globalFloats : this.#functionFloats)[index] ?? null;
 	}
 
-	setOp(index: number, op: number): void { this._code[index] = op; }
-	getOp(index: number): number { return this._code[index] ?? null; }
+	public setOp(index: number, op: number): void { this.#code[index] = op; }
+	public getOp(index: number): number { return this.#code[index] ?? null; }
 
-	addLineBreakPair(line: number, addr: number): void { this._lineBreakPairs.push([line, addr]); }
+	public addLineBreakPair(line: number, addr: number): void { this.#lineBreakPairs.push([line, addr]); }
 
-	createStringTable(table: string, global: boolean): void
+	public createStringTable(table: string, global: boolean): void
 	{
 		if (global)
 		{
-			this._globalStrings = new StringTable(table);
+			this.#globalStrings = new StringTable(table);
 		}
 		else
 		{
-			this._functionStrings = new StringTable(table);
+			this.#functionStrings = new StringTable(table);
 		}
 	}
 }
