@@ -17,8 +17,9 @@
     "url": "https://github.com/Elletra/dso.js/issues"
   },
   "homepage": "https://github.com/Elletra/dso.js#readme",
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
   "description": "A DSO decompiler for Blockland.",
   "keywords": [
     "blockland",
