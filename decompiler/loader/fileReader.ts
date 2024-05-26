@@ -21,7 +21,7 @@ export class FileReader
 		this.#position = 0;
 	}
 
-	get isEOF(): boolean { return this.#position >= this.#buffer.size; }
+	get isEOF(): boolean { return this.#position >= this.#buffer.byteLength; }
 
 	readU8(): number
 	{
