@@ -62,9 +62,9 @@ export class FileData
 
 	setIdentifier(addr: number, index: number): void { this._identifierTable.set(addr, index); }
 
-	getIdentifier(addr: number, index: number): void
+	getIdentifier(addr: number, index: number): string | null
 	{
-		this.hasIdentifierAt(addr) ? this.getString(index, true) : null;
+		return this.hasIdentifierAt(addr) ? this.getString(index, true) : null;
 	}
 
 	hasIdentifierAt(addr: number): boolean
