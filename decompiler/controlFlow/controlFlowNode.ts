@@ -40,9 +40,6 @@ export class ControlFlowNode
 
 	public get isFunction(): boolean { return this.functionInstruction !== null; }
 
-	public get isLoopStart(): boolean { return this.dominates(this.getPredecessor(1)); }
-	public get isLoopEnd(): boolean { return this.getSuccessor(1)?.dominates(this) ?? false; }
-
 	public addInstruction(instruction: Instruction): Instruction
 	{
 		this.instructions.push(instruction);
@@ -106,4 +103,7 @@ export class ControlFlowNode
 
 		return dom === this;
 	}
+
+	public isLoopStart(): boolean { return this.dominates(this.getPredecessor(1)); }
+	public isLoopEnd(): boolean { return this.getSuccessor(1)?.dominates(this) ?? false; }
 };
