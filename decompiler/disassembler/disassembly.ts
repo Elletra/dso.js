@@ -1,4 +1,4 @@
-import { Instruction } from "./instructions/instruction";
+import { FunctionInstruction, Instruction } from "./instructions/instruction";
 
 export class Disassembly
 {
@@ -24,9 +24,46 @@ export class Disassembly
 		const instructions = [...this.#instructions.values()];
 
 		// TODO: If recursive descent disassembly is ever implemented, this will not work.
-		instructions.sort((insn1, insn2) => insn1.address - insn2.address);
+		return instructions.sort((insn1, insn2) => insn1.address - insn2.address);
+	}
 
-		return instructions;
+	// Split instructions by function/block.
+	public getSplitInstructions(): Instruction[][]
+	{
+		const split: Instruction[][] = [];
+		let instructions: Instruction[] = [];
+		let functionEnd = -1;
+
+		for (const instruction of this.getInstructions())
+		{
+			if (functionEnd >= 0 && instruction.address >= functionEnd)
+			{
+				split.push(instructions);
+
+				instructions = [];
+				functionEnd = -1;
+			}
+
+			if (instruction.type === "FunctionDeclaration")
+			{
+				if (instructions.length > 0)
+				{
+					split.push(instructions);
+				}
+
+				instructions = [];
+				functionEnd = (instruction as FunctionInstruction).endAddress;
+			}
+
+			instructions.push(instruction);
+		}
+
+		if (instructions.length > 0)
+		{
+			split.push(instructions);
+		}
+
+		return split;
 	}
 
 	public addBranchTarget(address: number): void { this.#branchTargets.add(address); }
