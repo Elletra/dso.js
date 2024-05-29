@@ -17,7 +17,7 @@ export class StringTable
 		{
 			const ch = rawString.at(i);
 
-			if (ch === '\0')
+			if (ch === "\0")
 			{
 				this.#table.set(index, str);
 				str = "";

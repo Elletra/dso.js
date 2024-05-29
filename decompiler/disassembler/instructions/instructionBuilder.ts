@@ -1,6 +1,23 @@
+import { AnyObject } from "../../../common/types";
 import { Opcode, ReturnValue } from "../../opcodes/opcode";
 import { BytecodeReader } from "../bytecodeReader";
-import { Instruction, InstructionProperties } from "./instruction";
+
+import
+{
+	Instruction,
+	FunctionInstruction,
+	CreateObjectInstruction,
+	AddObjectInstruction,
+	EndObjectInstruction,
+	BranchInstruction,
+	ReturnInstruction,
+	VariableInstruction,
+	FieldInstruction,
+	ImmediateInstruction,
+	FunctionCallInstruction,
+	AdvanceAppendInstruction,
+}
+from "./instruction";
 
 export class InstructionBuilder
 {
@@ -14,7 +31,7 @@ export class InstructionBuilder
 		this.#opcodeTypes = opcodeTypes;
 	}
 
-	public buildInstruction(opcode: Opcode, address: number, properties: InstructionProperties = {}): Instruction | null
+	public buildInstruction(opcode: Opcode, address: number, properties: AnyObject = {}): Instruction | null
 	{
 		const instruction = { type: this.#getType(opcode), opcode, address };
 
@@ -46,84 +63,128 @@ export class InstructionBuilder
 		}
 	}
 
-	#buildInstruction(instruction: any, properties: InstructionProperties): void
+	#buildInstruction(instruction: Instruction, properties: AnyObject): void
 	{
 		switch (instruction.type)
 		{
 			case "FunctionDeclaration":
-				instruction.name = this.#reader.readIdentifier();
-				instruction.namespace = this.#reader.readIdentifier();
-				instruction.package = this.#reader.readIdentifier();
-				instruction.hasBody = this.#reader.readBool();
-				instruction.endAddress = this.#reader.read();
-				instruction.arguments = [];
+			{
+				const insn = instruction as FunctionInstruction;
+
+				insn.name = this.#reader.readIdentifier();
+				insn.namespace = this.#reader.readIdentifier();
+				insn.package = this.#reader.readIdentifier();
+				insn.hasBody = this.#reader.readBool();
+				insn.endAddress = this.#reader.read();
+				insn.arguments = [];
 
 				const args = this.#reader.read();
 
 				for (let i = 0; i < args; i++)
 				{
-					instruction.arguments.push(this.#reader.readIdentifier());
+					insn.arguments.push(this.#reader.readIdentifier());
 				}
 
 				break;
+			}
 
 			case "CreateObject":
-				instruction.parent = this.#reader.readIdentifier();
-				instruction.isDataBlock = this.#reader.readBool();
-				instruction.failJumpAddress = this.#reader.read();
+			{
+				const insn = instruction as CreateObjectInstruction;
+
+				insn.parent = this.#reader.readIdentifier();
+				insn.isDataBlock = this.#reader.readBool();
+				insn.failJumpAddress = this.#reader.read();
 
 				break;
+			}
 
 			case "AddObject":
-				instruction.placeAtRoot = this.#reader.readBool();
+				(instruction as AddObjectInstruction).placeAtRoot = this.#reader.readBool();
 				break;
 
 			case "EndObject":
-				instruction.value = this.#reader.readBool();
+				(instruction as EndObjectInstruction).value = this.#reader.readBool();
 				break;
 
-			case "UnconditionalBranch":
-			case "ConditionalBranch":
-			case "ConditionalNotBranch":
-			case "ConditionalLogicalBranch":
-				instruction.targetAddress = this.#reader.read();
+			case "Branch":
+			{
+				const insn = instruction as BranchInstruction;
+				const { stringValue } = instruction.opcode;
+
+				insn.targetAddress = this.#reader.read();
+				insn.isConditional = stringValue !== "OP_JMP";
+				insn.isLogicalOperator = stringValue === "OP_JMPIF_NP" || stringValue === "OP_JMPIFNOT_NP";
+
 				break;
+			}
 
 			case "Return":
-				instruction.returnsValue = this.#returnableValue;
+				(instruction as ReturnInstruction).returnsValue = this.#returnableValue;
 				break;
 
 			case "Variable":
+				(instruction as VariableInstruction).name = this.#reader.readIdentifier();
+				break;
+
 			case "Field":
-				instruction.name = this.#reader.readIdentifier();
+				(instruction as FieldInstruction).name = this.#reader.readIdentifier();
 				break;
 
 			case "UIntImmediate":
-				instruction.value = this.#reader.read();
+			{
+				const insn = instruction as ImmediateInstruction;
+
+				insn.value = this.#reader.read();
+				insn.isTaggedString = false;
+
 				break;
-				
+			}
+
 			case "FloatImmediate":
-				instruction.value = this.#reader.readFloat();
+			{
+				const insn = instruction as ImmediateInstruction;
+
+				insn.value = this.#reader.readFloat();
+				insn.isTaggedString = false;
+
 				break;
+			}
 				
 			case "IdentifierImmediate":
-				instruction.value = this.#reader.readIdentifier();
+			{
+				const insn = instruction as ImmediateInstruction;
+
+				insn.value = this.#reader.readIdentifier();
+				insn.isTaggedString = false;
+
 				break;
+			}
 
 			case "StringImmediate":
 			case "TaggedStringImmediate":
-				instruction.value = this.#reader.readString();
+			{
+				const insn = instruction as ImmediateInstruction;
+
+				insn.value = this.#reader.readString();
+				insn.isTaggedString = insn.type === "TaggedStringImmediate";
+
 				break;
+			}
 
 			case "FunctionCall":
-				instruction.name = this.#reader.readIdentifier();
-				instruction.namespace = this.#reader.readIdentifier();
-				instruction.callType = this.#reader.read();
+			{
+				const insn = instruction as FunctionCallInstruction;
+
+				insn.name = this.#reader.readIdentifier();
+				insn.namespace = this.#reader.readIdentifier();
+				insn.callType = this.#reader.read();
 
 				break;
+			}
 
 			case "AdvanceAppendChar":
-				instruction.char = this.#reader.readChar();
+				(instruction as AdvanceAppendInstruction).char = this.#reader.readChar();
 				break;
 
 			default:

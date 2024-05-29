@@ -1,115 +1,75 @@
-import { Opcode, TypeReq, CallType } from "../../opcodes/opcode";
+import { Opcode, CallType } from "../../opcodes/opcode";
 
-export interface RequiredProperties
+export interface Instruction
 {
 	type: string;
 	address: number;
 	opcode: Opcode;
 };
 
-export interface FunctionProperties
+export interface FunctionInstruction extends Instruction
 {
 	name: string;
-	namespace: string;
-	package: string;
+	namespace: string | null;
+	package: string | null;
 	hasBody: boolean;
 	endAddress: number;
 	arguments: string[];
 };
 
-export interface CreateObjectProperties
+export interface CreateObjectInstruction extends Instruction
 {
 	parent: string;
 	isDataBlock: boolean;
 	failJumpAddress: number;
 };
 
-export interface AddObjectProperties
+export interface AddObjectInstruction extends Instruction
 {
 	placeAtRoot: boolean;
 };
 
-export interface EndObjectProperties
+export interface EndObjectInstruction extends Instruction
 {
 	value: boolean;
 };
 
-export interface BranchProperties
+export interface BranchInstruction extends Instruction
 {
 	targetAddress: number;
 	isConditional: boolean;
 	isLogicalOperator: boolean;
 };
 
-export interface ReturnProperties
+export interface ReturnInstruction extends Instruction
 {
 	returnsValue: boolean;
 };
 
-export interface FieldOrVariableProperties
+export interface VariableInstruction extends Instruction
 {
 	name: string;
 };
 
-export interface ConvertToTypeProperties
+export interface FieldInstruction extends Instruction
 {
-	type: TypeReq;
+	name: string;
 };
 
-export interface ImmediateProperties
+export interface ImmediateInstruction extends Instruction
 {
 	value: number | string;
 	isTaggedString: boolean;
-	isIdentifier: boolean;
 };
 
-export interface FunctionCallProperties
+export interface FunctionCallInstruction extends Instruction
 {
 	name: string;
 	namespace: string;
 	callType: CallType;
 };
 
-export interface AdvanceAppendProperties
+export interface AdvanceAppendInstruction extends Instruction
 {
 	char: string;
 };
-
-export type InstructionProperties = FunctionProperties
-	| CreateObjectProperties
-	| AddObjectProperties
-	| EndObjectProperties
-	| BranchProperties
-	| ReturnProperties
-	| FieldOrVariableProperties
-	| ConvertToTypeProperties
-	| ImmediateProperties
-	| FunctionCallProperties
-	| AdvanceAppendProperties
-	| {};
-
-export type BasicInstruction = RequiredProperties;
-export type FunctionInstruction = RequiredProperties & FunctionProperties;
-export type CreateObjectInstruction = RequiredProperties & CreateObjectProperties;
-export type AddObjectInstruction = RequiredProperties & AddObjectProperties;
-export type EndObjectInstruction = RequiredProperties & EndObjectProperties;
-export type BranchInstruction = RequiredProperties & BranchProperties;
-export type ReturnInstruction = RequiredProperties & ReturnProperties;
-export type FieldOrVariableInstruction = RequiredProperties & FieldOrVariableProperties;
-export type ConvertToTypeInstruction = RequiredProperties & ConvertToTypeProperties;
-export type ImmediateInstruction = RequiredProperties & ImmediateProperties;
-export type FunctionCallInstruction = RequiredProperties & FunctionCallProperties;
-export type AdvanceAppendInstruction = RequiredProperties & AdvanceAppendProperties;
-
-export type Instruction = BasicInstruction
-	| FunctionInstruction
-	| CreateObjectInstruction
-	| AddObjectInstruction
-	| EndObjectInstruction
-	| BranchInstruction
-	| ReturnInstruction
-	| FieldOrVariableInstruction
-	| ConvertToTypeInstruction
-	| ImmediateInstruction
-	| FunctionCallInstruction
-	| AdvanceAppendInstruction;

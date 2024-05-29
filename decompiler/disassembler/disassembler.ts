@@ -113,10 +113,7 @@ export class Disassembler
 
 				break;
 			
-			case "UnconditionalBranch":
-			case "ConditionalBranch":
-			case "ConditionalNotBranch":
-			case "ConditionalLogicalBranch":
+			case "Branch":
 				const branch = instruction as BranchInstruction;
 
 				if (this.#reader.inFunction)
@@ -143,17 +140,9 @@ export class Disassembler
 	{
 		for (const instruction of this.#disassembly.getInstructions())
 		{
-			switch (instruction.type)
+			if (instruction.type === "Branch")
 			{
-				case "UnconditionalBranch":
-				case "ConditionalBranch":
-				case "ConditionalNotBranch":
-				case "ConditionalLogicalBranch":
-					this.#disassembly.addBranchTarget((instruction as BranchInstruction).targetAddress);
-					break;
-				
-				default:
-					break;
+				this.#disassembly.addBranchTarget((instruction as BranchInstruction).targetAddress);
 			}
 		}
 	}
