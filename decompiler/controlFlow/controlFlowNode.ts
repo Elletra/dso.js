@@ -33,9 +33,7 @@ export class ControlFlowNode
 
 	public get functionInstruction(): FunctionInstruction | null
 	{
-		return this.firstInstruction?.type === "FunctionDeclaration"
-			? this.firstInstruction as FunctionInstruction
-			: null;
+		return this.firstInstruction instanceof FunctionInstruction ? this.firstInstruction : null;
 	}
 
 	public get isFunction(): boolean { return this.functionInstruction !== null; }

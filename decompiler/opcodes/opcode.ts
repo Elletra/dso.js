@@ -1,4 +1,4 @@
-export enum ReturnValue
+export enum ReturnValueChange
 {
 	ToFalse,
 	ToTrue,
@@ -17,6 +17,7 @@ export enum TypeReq
 // For function call instructions.
 export enum CallType
 {
+	Invalid = -1,
 	FunctionCall,
 	MethodCall,
 	ParentCall,
@@ -26,10 +27,10 @@ export class Opcode
 {
 	#value: number | null;
 	#stringValue: string | null;
-	#returnValue: ReturnValue;
+	#returnValue: ReturnValueChange;
 	#typeReq: TypeReq;
 
-	constructor(value: number | null, stringValue: string | null, returnValue: ReturnValue, typeReq: TypeReq)
+	constructor(value: number | null, stringValue: string | null, returnValue: ReturnValueChange, typeReq: TypeReq)
 	{
 		this.#value = value;
 		this.#stringValue = stringValue;
@@ -39,7 +40,7 @@ export class Opcode
 
 	public get value(): number { return this.#value ?? 0; }
 	public get stringValue(): string { return this.#stringValue; }
-	public get returnValue(): ReturnValue { return this.#returnValue; }
+	public get returnValue(): ReturnValueChange { return this.#returnValue; }
 	public get typeReq(): TypeReq { return this.#typeReq; }
 
 	public get hasValue(): boolean { return this.#value !== null; }

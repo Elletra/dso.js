@@ -44,7 +44,7 @@ export class Disassembly
 				functionEnd = -1;
 			}
 
-			if (instruction.type === "FunctionDeclaration")
+			if (instruction instanceof FunctionInstruction)
 			{
 				if (instructions.length > 0)
 				{
@@ -52,7 +52,7 @@ export class Disassembly
 				}
 
 				instructions = [];
-				functionEnd = (instruction as FunctionInstruction).endAddress;
+				functionEnd = instruction.endAddress;
 			}
 
 			instructions.push(instruction);

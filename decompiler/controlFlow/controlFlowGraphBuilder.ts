@@ -1,5 +1,5 @@
 import { Disassembly } from "../disassembler/disassembly";
-import { BranchInstruction, Instruction } from "../disassembler/instructions/instruction";
+import { BranchInstruction, FunctionInstruction, Instruction } from "../disassembler/instructions/instruction";
 import { ControlFlowGraph } from "./controlFlowGraph";
 import { ControlFlowNode } from "./controlFlowNode";
 
@@ -45,7 +45,7 @@ export class ControlFlowGraphBuilder
 
 				currNode = newNode;
 			}
-			else if (currNode.lastInstruction?.type === "Branch")
+			else if (currNode.lastInstruction instanceof BranchInstruction)
 			{
 				/* Branch instructions end CFG nodes. */
 
@@ -56,7 +56,7 @@ export class ControlFlowGraphBuilder
 				currNode = newNode;
 			}
 
-			if (instruction.type === "FunctionDeclaration")
+			if (instruction instanceof FunctionInstruction)
 			{
 				if (graph.functionInstruction !== null)
 				{
@@ -85,20 +85,18 @@ export class ControlFlowGraphBuilder
 		{
 			for (const node of graph.getNodes())
 			{
-				if (node.lastInstruction.type !== "Branch")
+				if (node.lastInstruction instanceof BranchInstruction)
 				{
-					continue;
+					const branch = node.lastInstruction;
+
+					// Gross hack
+					if (!graph.hasNode(branch.targetAddress))
+					{
+						this.#createDummyNode(graph, branch.targetAddress);
+					}
+
+					graph.addEdge(node.address, branch.targetAddress);
 				}
-
-				const branch = node.lastInstruction as BranchInstruction;
-
-				// Gross hack
-				if (!graph.hasNode(branch.targetAddress))
-				{
-					this.#createDummyNode(graph, branch.targetAddress);
-				}
-
-				graph.addEdge(node.address, branch.targetAddress);
 			}
 		}
 	}

@@ -7,6 +7,7 @@ export class BytecodeReader
 	#index: number = 0;
 
 	public function: FunctionInstruction = null;
+	public returnableValue: boolean = false;
 
 	constructor(fileData: FileData)
 	{

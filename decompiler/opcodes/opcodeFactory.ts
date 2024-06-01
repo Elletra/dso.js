@@ -1,4 +1,4 @@
-import { Opcode, ReturnValue, TypeReq } from "./opcode";
+import { Opcode, ReturnValueChange, TypeReq } from "./opcode";
 
 export class OpcodeFactory
 {
@@ -16,7 +16,7 @@ export class OpcodeFactory
 		return new Opcode(str !== null ? value : null, str, this.#getReturnValue(str), this.#getTypeReq(str));
 	}
 
-	#getReturnValue(opcodeStr: string): ReturnValue
+	#getReturnValue(opcodeStr: string): ReturnValueChange
 	{
 		switch (opcodeStr)
 		{
@@ -28,7 +28,7 @@ export class OpcodeFactory
 			case "OP_JMPIFF":
 			case "OP_JMPIFNOT":
 			case "OP_JMPIFFNOT":
-				return ReturnValue.ToFalse;
+				return ReturnValueChange.ToFalse;
 
 			case "OP_LOADVAR_STR":
 			case "OP_SAVEVAR_UINT":
@@ -48,10 +48,10 @@ export class OpcodeFactory
 			case "OP_CALLFUNC":
 			case "OP_CALLFUNC_RESOLVE":
 			case "OP_REWIND_STR":
-				return ReturnValue.ToTrue;
+				return ReturnValueChange.ToTrue;
 
 			default:
-				return ReturnValue.NoChange;
+				return ReturnValueChange.NoChange;
 		}
 	}
 

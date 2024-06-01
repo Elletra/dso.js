@@ -4,20 +4,20 @@ import { OpcodeFactory } from "../opcodes/opcodeFactory";
 import { BytecodeReader } from "./bytecodeReader";
 import { Disassembly } from "./disassembly";
 import { BranchInstruction, FunctionInstruction, Instruction } from "./instructions/instruction";
-import { InstructionBuilder } from "./instructions/instructionBuilder";
+import { InstructionFactory } from "./instructions/instructionFactory";
 
 export class Disassembler
 {
-	#factory: OpcodeFactory;
-	#builder: InstructionBuilder;
+	#opcodeFactory: OpcodeFactory;
+	#instructionFactory: InstructionFactory;
 	#reader: BytecodeReader;
 	#disassembly: Disassembly;
 
-	public disassemble(fileData: FileData, opcodes: string[], opcodeTypes: Record<string, string>): Disassembly
+	public disassemble(fileData: FileData, opcodeFactory: OpcodeFactory, instructionFactory: InstructionFactory): Disassembly
 	{
 		this.#reader = new BytecodeReader(fileData);
-		this.#factory = new OpcodeFactory(opcodes);
-		this.#builder = new InstructionBuilder(this.#reader, opcodeTypes);
+		this.#opcodeFactory = opcodeFactory;
+		this.#instructionFactory = instructionFactory;
 		this.#disassembly = new Disassembly();
 
 		this.#disassemble();
@@ -51,7 +51,7 @@ export class Disassembler
 		this.#processAddress(address);
 
 		const value = this.#reader.read();
-		const opcode = this.#factory.create(value);
+		const opcode = this.#opcodeFactory.create(value);
 
 		if (opcode === null || !opcode.isValid)
 		{
@@ -70,7 +70,7 @@ export class Disassembler
 
 	#processAddress(address: number): void
 	{
-		if (this.#reader.inFunction && address >= (this.#reader.function as FunctionInstruction).endAddress)
+		if (this.#reader.inFunction && address >= this.#reader.function?.endAddress)
 		{
 			this.#reader.function = null;
 		}
@@ -78,59 +78,47 @@ export class Disassembler
 
 	#disassembleOpcode(opcode: Opcode, address: number): Instruction | null
 	{
-		return this.#builder.buildInstruction(opcode, address);
+		return this.#instructionFactory.create(opcode, address, this.#reader);
 	}
 
 	#processInstruction(instruction: Instruction): void
 	{
 		this.#validateInstruction(instruction);
-		this.#builder.setReturnableValue(instruction);
 		this.#addInstruction(instruction);
 	}
 
 	#validateInstruction(instruction: Instruction): void
 	{
-		switch (instruction.type)
+		if (instruction instanceof FunctionInstruction)
 		{
-			case "FunctionDeclaration":
-				const func = instruction as FunctionInstruction;
-
-				if (func.hasBody)
-				{
-					// TODO: Maybe support nested functions someday??
-					if (this.#reader.inFunction)
-					{
-						throw new Error(`Nested function at ${func.address}`);
-					}
-
-					if (func.endAddress >= this.#reader.size)
-					{
-						throw new Error(`Function at ${func.address} has invalid end address ${func.endAddress}`);
-					}
-
-					this.#reader.function = func;
-				}
-
-				break;
-			
-			case "Branch":
-				const branch = instruction as BranchInstruction;
-
+			if (instruction.hasBody)
+			{
+				// TODO: Maybe support nested functions someday??
 				if (this.#reader.inFunction)
 				{
-					const { address, targetAddress } = branch;
-					const { function: func } = this.#reader;
-
-					if (targetAddress <= func.address || targetAddress >= func.endAddress)
-					{
-						throw new Error(`Branch at ${address} jumps out of function to ${targetAddress}`);
-					}
+					throw new Error(`Nested function at ${instruction.address}`);
 				}
 
-				break;
-			
-			default:
-				break;
+				if (instruction.endAddress >= this.#reader.size)
+				{
+					throw new Error(`Function at ${instruction.address} has invalid end address ${instruction.endAddress}`);
+				}
+
+				this.#reader.function = instruction;
+			}
+		}
+		else if (instruction instanceof BranchInstruction)
+		{
+			if (this.#reader.inFunction)
+			{
+				const { address, targetAddress } = instruction;
+				const { function: func } = this.#reader;
+
+				if (targetAddress <= func.address || targetAddress >= func.endAddress)
+				{
+					throw new Error(`Branch at ${address} jumps out of function to ${targetAddress}`);
+				}
+			}
 		}
 	}
 
@@ -140,9 +128,9 @@ export class Disassembler
 	{
 		for (const instruction of this.#disassembly.getInstructions())
 		{
-			if (instruction.type === "Branch")
+			if (instruction instanceof BranchInstruction)
 			{
-				this.#disassembly.addBranchTarget((instruction as BranchInstruction).targetAddress);
+				this.#disassembly.addBranchTarget(instruction.targetAddress);
 			}
 		}
 	}
