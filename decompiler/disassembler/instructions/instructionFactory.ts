@@ -1,43 +1,59 @@
-import { Opcode } from "./opcode";
 import { BytecodeReader } from "../bytecodeReader";
+
+import { Instruction, Opcode } from "./instruction";
+
+import { FunctionDeclarationInstruction } from "./functionDeclaration";
+import { CreateObjectInstruction, AddObjectInstruction, EndObjectInstruction } from "./createObject";
+import { UnconditionalBranchInstruction, ConditionalBranchInstruction, LogicalBranchInstruction } from "./branch";
+import { ReturnInstruction } from "./return";
+import { BinaryInstruction, BinaryStringInstruction, UnaryInstruction } from "./nary";
 
 import
 {
-	Instruction,
-	FunctionInstruction,
-
-	CreateObjectInstruction, AddObjectInstruction, EndObjectInstruction,
-	UnconditionalBranchInstruction, ConditionalBranchInstruction, LogicalBranchInstruction,
-
-	ReturnInstruction,
-
-	BinaryInstruction, BinaryStringInstruction,
-	UnaryInstruction,
-
-	VariableInstruction, VariableArrayInstruction,
-	LoadVariableInstruction, SaveVariableInstruction,
-
-	ObjectInstruction, ObjectNewInstruction,
-
-	FieldInstruction, FieldArrayInstruction,
-	LoadFieldInstruction, SaveFieldInstruction,
-
-	ConvertToTypeInstruction,
-
-	UIntInstruction, FloatInstruction, IdentifierInstruction, StringInstruction, TaggedStringInstruction,
-
-	FunctionCallInstruction,
-
-	AdvanceStringInstruction, AdvanceAppendInstruction, AdvanceCommaInstruction, AdvanceNullInstruction,
-	RewindStringInstruction, TerminateRewindInstruction,
-
-	PushInstruction, PushFrameInstruction,
-
-	DebugBreakInstruction,
-	UnusedInstruction,
-
+	VariableInstruction,
+	VariableArrayInstruction,
+	LoadVariableInstruction,
+	SaveVariableInstruction,
 }
-from "./instruction";
+from "./variable";
+
+import
+{
+	ObjectInstruction,
+	ObjectNewInstruction,
+	FieldInstruction,
+	FieldArrayInstruction,
+	LoadFieldInstruction,
+	SaveFieldInstruction,
+}
+from "./field";
+
+import { ConvertToTypeInstruction } from "./convertToType";
+
+import
+{
+	UIntInstruction,
+	FloatInstruction,
+	IdentifierInstruction,
+	StringInstruction,
+	TaggedStringInstruction,
+}
+from "./immediate";
+
+import { FunctionCallInstruction } from "./functionCall";
+
+import
+{
+	AdvanceStringInstruction,
+	AdvanceAppendInstruction,
+	AdvanceCommaInstruction,
+	AdvanceNullInstruction,
+	RewindStringInstruction,
+	TerminateRewindInstruction,
+}
+from "./string";
+
+import { PushInstruction, PushFrameInstruction, DebugBreakInstruction, UnusedInstruction } from "./misc";
 
 export class InstructionFactory
 {
@@ -79,7 +95,7 @@ export class InstructionFactory
 	{
 		switch (opcode.stringValue)
 		{
-			case "OP_FUNC_DECL": return FunctionInstruction;
+			case "OP_FUNC_DECL": return FunctionDeclarationInstruction;
 			case "OP_CREATE_OBJECT": return CreateObjectInstruction;
 			case "OP_ADD_OBJECT": return AddObjectInstruction;
 			case "OP_END_OBJECT": return EndObjectInstruction;

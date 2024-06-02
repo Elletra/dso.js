@@ -1,5 +1,5 @@
 import { ControlFlowNode } from "./controlFlowNode";
-import { FunctionInstruction } from "../disassembler/instructions/instruction";
+import { FunctionDeclarationInstruction } from "../disassembler/instructions/functionDeclaration";
 
 export class ControlFlowGraph
 {
@@ -11,7 +11,7 @@ export class ControlFlowGraph
 
 	public get entryPoint(): ControlFlowNode | null { return this.getNode(this.entryAddress); }
 
-	public get functionInstruction(): FunctionInstruction | null
+	public get functionInstruction(): FunctionDeclarationInstruction | null
 	{
 		return this.getNode(this.entryAddress)?.functionInstruction ?? null;
 	}

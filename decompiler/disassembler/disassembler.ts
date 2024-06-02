@@ -1,9 +1,9 @@
 import { FileData } from "../loader/fileData";
-import { Opcode } from "./instructions/opcode";
-import { OpcodeFactory } from "../opcodes/opcodeFactory";
 import { BytecodeReader } from "./bytecodeReader";
 import { Disassembly } from "./disassembly";
-import { BranchInstruction, FunctionInstruction, Instruction } from "./instructions/instruction";
+import { Instruction } from "./instructions/instruction";
+import { BranchInstruction } from "./instructions/branch";
+import { FunctionDeclarationInstruction } from "./instructions/functionDeclaration";
 import { InstructionFactory } from "./instructions/instructionFactory";
 
 export class Disassembler
@@ -80,7 +80,7 @@ export class Disassembler
 
 	#validateInstruction(instruction: Instruction): void
 	{
-		if (instruction instanceof FunctionInstruction)
+		if (instruction instanceof FunctionDeclarationInstruction)
 		{
 			if (instruction.hasBody)
 			{

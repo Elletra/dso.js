@@ -1,4 +1,5 @@
-import { FunctionInstruction, Instruction } from "./instructions/instruction";
+import { Instruction } from "./instructions/instruction";
+import { FunctionDeclarationInstruction } from "./instructions/functionDeclaration";
 
 export class Disassembly
 {
@@ -44,7 +45,7 @@ export class Disassembly
 				functionEnd = -1;
 			}
 
-			if (instruction instanceof FunctionInstruction)
+			if (instruction instanceof FunctionDeclarationInstruction)
 			{
 				if (instructions.length > 0)
 				{

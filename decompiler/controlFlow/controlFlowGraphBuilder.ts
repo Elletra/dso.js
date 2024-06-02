@@ -1,5 +1,7 @@
 import { Disassembly } from "../disassembler/disassembly";
-import { BranchInstruction, FunctionInstruction, Instruction } from "../disassembler/instructions/instruction";
+import { Instruction } from "../disassembler/instructions/instruction";
+import { FunctionDeclarationInstruction } from "../disassembler/instructions/functionDeclaration";
+import { BranchInstruction } from "../disassembler/instructions/branch";
 import { ControlFlowGraph } from "./controlFlowGraph";
 import { ControlFlowNode } from "./controlFlowNode";
 
@@ -56,7 +58,7 @@ export class ControlFlowGraphBuilder
 				currNode = newNode;
 			}
 
-			if (instruction instanceof FunctionInstruction)
+			if (instruction instanceof FunctionDeclarationInstruction)
 			{
 				if (graph.functionInstruction !== null)
 				{

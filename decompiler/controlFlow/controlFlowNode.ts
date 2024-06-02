@@ -1,4 +1,5 @@
-import { FunctionInstruction, Instruction } from "../disassembler/instructions/instruction";
+import { Instruction } from "../disassembler/instructions/instruction";
+import { FunctionDeclarationInstruction } from "../disassembler/instructions/functionDeclaration";
 
 export class ControlFlowNode
 {
@@ -31,9 +32,9 @@ export class ControlFlowNode
 		return this.instructions.length > 0 ? this.instructions.at(-1) : null;
 	}
 
-	public get functionInstruction(): FunctionInstruction | null
+	public get functionInstruction(): FunctionDeclarationInstruction | null
 	{
-		return this.firstInstruction instanceof FunctionInstruction ? this.firstInstruction : null;
+		return this.firstInstruction instanceof FunctionDeclarationInstruction ? this.firstInstruction : null;
 	}
 
 	public get isFunction(): boolean { return this.functionInstruction !== null; }
