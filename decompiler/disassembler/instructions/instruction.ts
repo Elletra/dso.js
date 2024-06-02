@@ -1,5 +1,30 @@
-import { CallType, Opcode, ReturnValueChange, TypeReq } from "../../opcodes/opcode";
+import { Opcode } from "./opcode";
 import { BytecodeReader } from "../bytecodeReader";
+
+export enum ReturnValueChange
+{
+	ToFalse,
+	ToTrue,
+	NoChange,
+};
+
+export enum TypeReq
+{
+	Invalid = -1,
+	None,
+	UInt,
+	Float,
+	String,
+};
+
+// For function call instructions.
+export enum CallType
+{
+	Invalid = -1,
+	FunctionCall,
+	MethodCall,
+	ParentCall,
+};
 
 /**
  * There's a bunch of empty subclasses of `Instruction` in order to let `ASTBuilder` use classes

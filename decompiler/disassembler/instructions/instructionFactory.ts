@@ -1,4 +1,4 @@
-import { Opcode, ReturnValueChange } from "../../opcodes/opcode";
+import { Opcode } from "./opcode";
 import { BytecodeReader } from "../bytecodeReader";
 
 import
@@ -41,11 +41,38 @@ from "./instruction";
 
 export class InstructionFactory
 {
-	create(opcode: Opcode, address: number, reader: BytecodeReader): Instruction
-	{
-		const instructionClass = this._getClass(opcode);
+	#opcodes: string[];
 
-		return instructionClass !== null ? new instructionClass(opcode, address, reader) : null;
+	constructor(opcodes: string[])
+	{
+		this.#opcodes = [...opcodes];
+	}
+
+	create(op: number, address: number, reader: BytecodeReader): Instruction
+	{
+		let opcode: Opcode = null;
+		let instruction: Instruction = null;
+
+		opcode = this.#createOpcode(op, address);
+
+		if (opcode !== null)
+		{
+			const instructionClass = this._getClass(opcode);
+
+			if (instructionClass !== null)
+			{
+				instruction = new instructionClass(opcode, address, reader);
+			}
+		}
+
+		return instruction;
+	}
+
+	#createOpcode(op: number, address: number): Opcode | null
+	{
+		return (Number.isInteger(op) && op >= 0 && op < this.#opcodes.length)
+			? new Opcode(op, this.#opcodes.at(op))
+			: null;
 	}
 
 	protected _getClass(opcode: Opcode): typeof Instruction | null

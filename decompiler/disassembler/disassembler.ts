@@ -1,5 +1,5 @@
 import { FileData } from "../loader/fileData";
-import { Opcode } from "../opcodes/opcode";
+import { Opcode } from "./instructions/opcode";
 import { OpcodeFactory } from "../opcodes/opcodeFactory";
 import { BytecodeReader } from "./bytecodeReader";
 import { Disassembly } from "./disassembly";
@@ -8,15 +8,13 @@ import { InstructionFactory } from "./instructions/instructionFactory";
 
 export class Disassembler
 {
-	#opcodeFactory: OpcodeFactory;
 	#instructionFactory: InstructionFactory;
 	#reader: BytecodeReader;
 	#disassembly: Disassembly;
 
-	public disassemble(fileData: FileData, opcodeFactory: OpcodeFactory, instructionFactory: InstructionFactory): Disassembly
+	public disassemble(fileData: FileData, instructionFactory: InstructionFactory): Disassembly
 	{
 		this.#reader = new BytecodeReader(fileData);
-		this.#opcodeFactory = opcodeFactory;
 		this.#instructionFactory = instructionFactory;
 		this.#disassembly = new Disassembly();
 
@@ -50,19 +48,12 @@ export class Disassembler
 
 		this.#processAddress(address);
 
-		const value = this.#reader.read();
-		const opcode = this.#opcodeFactory.create(value);
-
-		if (opcode === null || !opcode.isValid)
-		{
-			throw new Error(`Invalid opcode ${value} at ${address}`);
-		}
-
-		const instruction = this.#disassembleOpcode(opcode, address);
+		const op = this.#reader.read();
+		const instruction = this.#disassembleInstruction(op, address);
 
 		if (instruction === null)
 		{
-			throw new Error(`Failed to disassemble opcode ${opcode.value} at ${address}`);
+			throw new Error(`Failed to disassemble opcode ${op} at ${address}`);
 		}
 
 		this.#processInstruction(instruction);
@@ -76,9 +67,9 @@ export class Disassembler
 		}
 	}
 
-	#disassembleOpcode(opcode: Opcode, address: number): Instruction | null
+	#disassembleInstruction(op: number, address: number): Instruction | null
 	{
-		return this.#instructionFactory.create(opcode, address, this.#reader);
+		return this.#instructionFactory.create(op, address, this.#reader);
 	}
 
 	#processInstruction(instruction: Instruction): void
