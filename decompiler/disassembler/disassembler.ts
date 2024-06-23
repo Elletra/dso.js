@@ -1,25 +1,26 @@
 import { FileData } from "../loader/fileData";
 import { BytecodeReader } from "./bytecodeReader";
-import { Disassembly } from "./disassembly";
 import { Instruction } from "./instructions/instruction";
 import { BranchInstruction } from "./instructions/branch";
 import { FunctionDeclarationInstruction } from "./instructions/functionDeclaration";
 import { InstructionFactory } from "./instructions/instructionFactory";
+import { Disassembly } from "./disassembly";
 
 export class Disassembler
 {
 	#instructionFactory: InstructionFactory;
 	#reader: BytecodeReader;
 	#disassembly: Disassembly;
+	#prevInstruction: Instruction | null;
 
 	public disassemble(fileData: FileData, instructionFactory: InstructionFactory): Disassembly
 	{
 		this.#reader = new BytecodeReader(fileData);
 		this.#instructionFactory = instructionFactory;
 		this.#disassembly = new Disassembly();
+		this.#prevInstruction = null;
 
 		this.#disassemble();
-		this.#markBranchTargets();
 
 		return this.#disassembly;
 	}
@@ -113,16 +114,18 @@ export class Disassembler
 		}
 	}
 
-	#addInstruction(instruction: Instruction): void { this.#disassembly.addInstruction(instruction); }
-
-	#markBranchTargets(): void
+	#addInstruction(instruction: Instruction): void
 	{
-		for (const instruction of this.#disassembly.getInstructions())
+		const prev = this.#prevInstruction;
+
+		if (prev !== null)
 		{
-			if (instruction instanceof BranchInstruction)
-			{
-				this.#disassembly.addBranchTarget(instruction.targetAddress);
-			}
+			prev.next = instruction;
 		}
+
+		instruction.prev = prev;
+		this.#prevInstruction = instruction;
+
+		this.#disassembly.addInstruction(instruction);
 	}
 };
