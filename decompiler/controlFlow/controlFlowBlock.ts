@@ -20,7 +20,6 @@ export enum ControlFlowBlockType
 {
 	Default,
 	Conditional,
-	LogicalOperator,
 	Loop,
 };
 
