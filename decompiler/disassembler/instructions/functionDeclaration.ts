@@ -36,4 +36,23 @@ export class FunctionDeclarationInstruction extends Instruction
 	public get hasBody(): boolean { return this.#hasBody; };
 	public get endAddress(): number { return this.#endAddress; };
 	public get arguments(): string[] { return this.#arguments.slice(); };
+
+	protected _getToStringValues(): any[]
+	{
+		const values = super._getToStringValues();
+
+		if (this.#package !== null)
+		{
+			values.push(this.#package);
+		}
+
+		if (this.#namespace !== null)
+		{
+			values.push(this.#namespace);
+		}
+
+		values.push(this.#name, this.#hasBody, this.#endAddress, ...this.#arguments);
+
+		return values;
+	}
 };

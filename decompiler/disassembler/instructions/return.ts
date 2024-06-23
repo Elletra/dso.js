@@ -13,6 +13,7 @@ export class ReturnInstruction extends Instruction
 	}
 
 	public get returnsValue(): boolean { return this.#returnsValue; }
-
 	public get returnValueChange(): ReturnValueChange { return ReturnValueChange.ToFalse; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(this.#returnsValue); }
 };

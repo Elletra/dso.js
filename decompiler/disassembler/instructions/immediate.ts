@@ -10,6 +10,8 @@ export abstract class ImmediateInstruction<T> extends Instruction
 	protected set _value(value: T) { this.#value = value; }
 
 	public get returnValueChange(): ReturnValueChange { return ReturnValueChange.ToTrue; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(JSON.stringify(this.#value)); }
 };
 
 export class UIntInstruction extends ImmediateInstruction<number>

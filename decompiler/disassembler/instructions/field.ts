@@ -16,6 +16,8 @@ export class FieldInstruction extends Instruction
 	}
 
 	public get name(): string { return this.#name; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(this.#name); }
 };
 
 export class FieldArrayInstruction extends Instruction {};

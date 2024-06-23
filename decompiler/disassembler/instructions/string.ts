@@ -17,6 +17,8 @@ export class AdvanceAppendInstruction extends Instruction
 	}
 
 	public get char(): string { return this.#char; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(JSON.stringify(this.#char)); }
 };
 
 /* OP_ADVANCE_STR_COMMA */

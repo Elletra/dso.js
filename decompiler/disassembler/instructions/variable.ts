@@ -13,6 +13,8 @@ export class VariableInstruction extends Instruction
 	}
 
 	public get(): string { return this.#name; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(this.#name); }
 };
 
 export class VariableArrayInstruction extends Instruction {};

@@ -16,6 +16,8 @@ export abstract class BranchInstruction extends Instruction
 	public get targetAddress(): number { return this.#targetAddress; }
 
 	public get returnValueChange(): ReturnValueChange { return ReturnValueChange.ToFalse; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(this.#targetAddress); }
 };
 
 export class UnconditionalBranchInstruction extends BranchInstruction {};
@@ -26,6 +28,8 @@ export class ConditionalBranchInstruction extends BranchInstruction
 	{
 		return this.opcode.stringValue === "OP_JMPIFNOT" || this.opcode.stringValue === "OP_JMPIFFNOT";
 	}
+
+	public get isLoopEnd(): boolean { return this.targetAddress <= this.address; }
 };
 
 export class LogicalBranchInstruction extends BranchInstruction

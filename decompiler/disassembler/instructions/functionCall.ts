@@ -33,4 +33,18 @@ export class FunctionCallInstruction extends Instruction
 	public get callType(): CallType { return this.#callType; }
 	
 	public get returnValueChange(): ReturnValueChange { return ReturnValueChange.ToTrue; }
+
+	protected _getToStringValues(): any[]
+	{
+		const values = super._getToStringValues();
+
+		if (this.#namespace !== null)
+		{
+			values.push(this.#namespace);
+		}
+
+		values.push(this.#name, CallType[this.#callType]);
+
+		return values;
+	}
 };

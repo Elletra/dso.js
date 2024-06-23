@@ -20,6 +20,11 @@ export class CreateObjectInstruction extends Instruction
 	public get parent(): string { return this.#parent; };
 	public get isDataBlock(): boolean { return this.#isDataBlock; };
 	public get failJumpAddress(): number { return this.#failJumpAddress; };
+
+	protected _getToStringValues(): any[]
+	{
+		return super._getToStringValues().concat(this.#parent, this.#isDataBlock, this.#failJumpAddress);
+	}
 };
 
 /* Instruction for the second part of object creation. */
@@ -35,6 +40,8 @@ export class AddObjectInstruction extends Instruction
 	}
 
 	public get placeAtRoot(): boolean { return this.#placeAtRoot; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(this.#placeAtRoot); }
 };
 
 /* Instruction for the third and final part of object creation. */
@@ -51,4 +58,6 @@ export class EndObjectInstruction extends Instruction
 	}
 
 	public get value(): boolean { return this.#value; }
+
+	protected _getToStringValues(): any[] { return super._getToStringValues().concat(this.#value); }
 };

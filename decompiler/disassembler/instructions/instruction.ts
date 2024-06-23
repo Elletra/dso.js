@@ -18,11 +18,13 @@ export class Opcode
 		this.#stringValue = stringValue;
 	}
 
-	public get value(): number { return this.#value ?? 0; }
+	public get value(): number { return this.#value ?? -1; }
 	public get stringValue(): string { return this.#stringValue; }
 
 	public get hasValue(): boolean { return this.#value !== null; }
 	public get isValid(): boolean { return this.hasValue && this.#stringValue !== null; }
+
+	public toString(): string { return this.stringValue; }
 };
 
 /**
@@ -33,11 +35,18 @@ export class Opcode
  * it's okay...
  */
 
-/* Base instruction class. */
+/**
+ * Base instruction class.
+ *
+ * Instructions are doubly-linked lists to make analysis easier.
+ */
 export class Instruction
 {
 	#opcode: Opcode;
 	#address: number;
+
+	public prev: Instruction | null = null;
+	public next: Instruction | null = null;
 
 	constructor(opcode: Opcode, address: number, _reader: BytecodeReader)
 	{
@@ -48,5 +57,12 @@ export class Instruction
 	public get opcode(): Opcode { return this.#opcode; }
 	public get address(): number { return this.#address; }
 
+	public get isStart(): boolean { return this.prev === null; }
+	public get isEnd(): boolean { return this.next === null; }
+
 	public get returnValueChange(): ReturnValueChange { return ReturnValueChange.NoChange; }
+
+	protected _getToStringValues(): any[] { return [this.#address, this.#opcode]; }
+
+	public toString(): string { return `[${this.constructor.name}, ${this._getToStringValues().join(", ")}]`; }
 };
