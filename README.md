@@ -1,3 +1,7 @@
+# !!! DEPRECATED !!!
+
+**Use [DSO Sharp](https://github.com/Elletra/dso-sharp) instead!**
+
 # dso.js
 A DSO decompiler for Blockland.
 
